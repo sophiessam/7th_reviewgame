@@ -3231,7 +3231,7 @@ function logPlay(game,result,earned){
 async function openAdmin(){
   show('admin'); $('adList').innerHTML='<p style="text-align:center">불러오는 중…</p>';
   const r=await jsonp({action:'who',week:'7기 '+WEEK+'주차'});
-  if(!r||!Array.isArray(r)){ $('adList').innerHTML='<p style="text-align:center">불러올 수 없어요. 랭킹 서버(Apps Script)를 v4로 업데이트했는지 확인해 주세요.</p>'; return; }
+  if(!r||!Array.isArray(r)||(r.length&&r[0].cls===undefined)){ $('adList').innerHTML='<p style="text-align:center">불러올 수 없어요. 랭킹 서버(Apps Script)를 v4로 업데이트했는지 확인해 주세요.</p>'; return; }
   const by={}; r.forEach(x=>{ (by[x.cls]=by[x.cls]||[]).push(x); });
   const order=['월요반','수요반'].concat(Object.keys(by).filter(k=>k!=='월요반'&&k!=='수요반'));
   $('adList').innerHTML=order.filter(k=>by[k]).map(k=>`<div class="ad-cls"><div class="ad-h">${esc(k)} · ${by[k].length}명</div>`+
