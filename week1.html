@@ -535,7 +535,7 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
 .bg-cell.sm{font-size:9.6px;letter-spacing:-.2px;}
 
 /* ---- 헤드셋 끼고 리듬 타는 쏘피 ---- */
-.sophie>svg{animation:groove .52s ease-in-out infinite alternate;transform-origin:50% 92%;overflow:visible;}
+#homeSophie>svg,#ngSophie>svg,#rSophie>svg{animation:groove .52s ease-in-out infinite alternate;transform-origin:50% 92%;overflow:visible;}
 @keyframes groove{0%{transform:rotate(-5deg) translateY(0) scaleY(1)}50%{transform:rotate(0) translateY(-3px) scaleY(1.02)}100%{transform:rotate(5deg) translateY(0) scaleY(.98)}}
 .sophie.sad>svg{animation:none;}
 .sophie.clap>svg{animation-duration:.26s;}
@@ -1802,7 +1802,7 @@ function robotSVG(){return `<svg viewBox="0 0 100 116" width="100%" height="100%
 </svg>`;}
 
 /* 음표 띄우기 (리듬 타는 쏘피) */
-function addNotes(){ ['homeSophie','ngSophie','rSophie','bgSophie'].forEach(id=>{ const el=document.getElementById(id); if(el && !el.querySelector('.nt'))
+function addNotes(){ ['homeSophie','ngSophie','rSophie'].forEach(id=>{ const el=document.getElementById(id); if(el && !el.querySelector('.nt'))
   el.insertAdjacentHTML('beforeend','<span class="nt n1">♪</span><span class="nt n2">♫</span><span class="nt n3">♪</span>'); }); }
 document.querySelectorAll('.sophie').forEach(s=>s.innerHTML=sophieSVG()); addNotes();
 function setSophie(el,mode){ el.className='sophie'+(el.dataset.sz||''); if(mode==='clap'){el.classList.add('clap','bounce');sfx.clap();sparkleBurst(el);setTimeout(()=>el.classList.remove('clap'),1300);} else if(mode==='sad'){el.classList.add('sad');} }
@@ -2730,14 +2730,22 @@ document.addEventListener('visibilitychange',()=>{ try{ if(document.hidden){ if(
 /* 음성 엔진 목록은 늦게 로드되므로 미리 받아 둠 */
 let VOICES=[]; function loadVoices(){ try{ VOICES=speechSynthesis.getVoices()||[]; }catch(e){} }
 if(!NO_TTS){ loadVoices(); try{ speechSynthesis.addEventListener('voiceschanged',loadVoices); }catch(e){ speechSynthesis.onvoiceschanged=loadVoices; } }
+/* 가장 자연스러운 영어 음성 고르기 (Edge 'Natural' > iOS/Mac 'Premium·Enhanced' > Google > 기본) */
+function bestVoice(vs){ const en=vs.filter(v=>/^en[-_](US|GB|AU|CA)/i.test(v.lang)); if(!en.length) return vs.find(v=>/^en/i.test(v.lang));
+  const score=v=>{ const n=v.name; let s=0;
+    if(/natural|neural|online/i.test(n)) s+=60; if(/premium|enhanced/i.test(n)) s+=50;
+    if(/^Google US English/i.test(n)) s+=40; else if(/google/i.test(n)) s+=30;
+    if(/ava|samantha|allison|aria|jenny|zoe|evan|nathan|serena/i.test(n)) s+=15;
+    if(/en[-_]US/i.test(v.lang)) s+=8; if(/compact|eloquence|grandpa|grandma|bad news|bells|boing|bubbles|cellos|jester|organ|superstar|trinoids|whisper|wobble|zarvox|albert|fred|junior|ralph|kathy|bahh/i.test(n)) s-=80;
+    return s; };
+  return en.sort((a,b)=>score(b)-score(a))[0]; }
 /* speak 덮어쓰기 — cancel 직후 바로 speak 하면 iOS/크롬에서 무음이 되는 문제 보완 */
 speak=function(text){ try{ if(muted||NO_TTS)return;
   text=(text||'').replace(/[^\x00-\x7F]/g,' ').replace(/\s+/g,' ').trim(); if(!text)return;
   unlockAudio(); if(!VOICES.length) loadVoices();
-  const u=new SpeechSynthesisUtterance(text); u.lang='en-US'; u.rate=.92; u.pitch=1; u.volume=1;
+  const u=new SpeechSynthesisUtterance(text); u.lang='en-US'; u.rate=.97; u.pitch=1; u.volume=1;
   const vs=VOICES;
-  const pref=vs.find(v=>/en[-_]US/i.test(v.lang)&&/natural|samantha|google|aria|jenny|zira|siri|ava|allison/i.test(v.name))||vs.find(v=>/en[-_]US/i.test(v.lang))||vs.find(v=>/^en/i.test(v.lang));
-  if(pref)u.voice=pref;
+  const pref=bestVoice(vs); if(pref)u.voice=pref;
   const busy=speechSynthesis.speaking||speechSynthesis.pending;
   speechSynthesis.cancel();
   setTimeout(()=>{ try{ speechSynthesis.resume(); speechSynthesis.speak(u); }catch(e){} }, busy?120:20);
@@ -3071,7 +3079,7 @@ async function deleteMyRank(){
   setTimeout(()=>openNickGate(),900);
 }
 /* ============ 닉네임 게이트 ============ */
-const BUILD='7-1c';
+const BUILD='7-1d';
 (function(){const b=document.getElementById('buildTag'); if(b) b.textContent='· '+BUILD;})();
 function paintNickChip(){ const n=getNick(), c=$('nickChip'); if(!c)return;
   if(n){ c.style.display='inline-block'; c.textContent='✏️ '+n; c.title='닉네임 바꾸기';
