@@ -652,6 +652,68 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
 .rps-btns button:disabled{opacity:.5;}
 .rps-res{min-height:26px;margin-top:10px;font-size:16px;color:var(--deep);}
 
+/* ---- 홈: 섹션마다 한 줄 ---- */
+.tiles.three{grid-template-columns:repeat(3,1fr);gap:9px;}
+.tiles.three .tile{padding:12px 4px 11px;display:flex;flex-direction:column;align-items:center;justify-content:center;border-radius:18px;}
+.tiles.three .tile .ic{font-size:30px;}
+.tiles.three .tile .tt{font-size:15px;margin-top:6px;line-height:1.15;}
+.tiles.three .tile .td{font-size:10px;margin-top:4px;white-space:normal;}
+.tile.ta-hero{background:linear-gradient(135deg,#ffe14d,#ffb84d);border-color:#fff;box-shadow:0 5px 0 #b77a1a,0 0 16px #ffe14d88;}
+.tile.ta-hero .tt{color:#232b78;font-size:18px;} .tile.ta-hero .td{color:#5a3a00;} .tile.ta-hero .go{color:#232b78;opacity:.7;}
+.tile.ta-hero .ic{animation:tahop 1.4s ease-in-out infinite;}
+@keyframes tahop{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px) rotate(-6deg)}}
+
+/* ---- 게임 설명 ---- */
+.howto{position:fixed;inset:0;z-index:300;background:rgba(20,22,70,.72);display:none;align-items:flex-start;justify-content:center;overflow:auto;padding:24px 16px;}
+.howto.show{display:flex;}
+.howto-card{width:100%;max-width:420px;background:#fff;border:4px solid var(--deep);border-radius:22px;padding:18px 16px 16px;box-shadow:0 6px 0 rgba(0,0,0,.25);margin:auto 0;}
+.howto-ic{font-size:40px;text-align:center;line-height:1;}
+.howto-t{font-family:'Jua';font-size:20px;color:var(--deep);text-align:center;margin:6px 0 10px;}
+.howto-b{margin:0 0 12px;padding-left:22px;color:var(--ink,#1d1f4d);font-size:14.5px;line-height:1.6;}
+.howto-b li{margin-bottom:6px;} .howto-b b{color:#d63fae;}
+.howto-demo{text-align:center;margin:0 0 12px;}
+.ht-pad{display:inline-grid;grid-template-columns:repeat(4,40px);gap:6px;}
+.ht-pad span{display:grid;place-items:center;height:36px;border-radius:10px;background:#e8ebff;border:2.5px solid var(--deep);font-size:15px;color:var(--deep);}
+.ht-pad span:last-child{background:#ffe14d;animation:htTap 1.2s ease-in-out infinite;}
+@keyframes htTap{0%,60%,100%{transform:scale(1)}30%{transform:scale(.86)}}
+
+/* ---- 빙고 드래그 ---- */
+.bg-chip,.bg-c3.filled{touch-action:none;user-select:none;-webkit-user-select:none;}
+.bg-c3.filled{cursor:grab;}
+.bg-chip.dragging,.bg-c3.dragging{opacity:.35;}
+.bg-c3.dropover{box-shadow:0 0 0 4px #ffe14d,0 0 14px #ffe14d;transform:scale(1.04);}
+.bg-ghost{position:fixed;z-index:400;transform:translate(-50%,-60%) rotate(-3deg);pointer-events:none;font-family:'Jua';font-size:14.5px;background:#ffe14d;color:var(--deep);border:2.5px solid var(--deep);border-radius:12px;padding:8px 11px;box-shadow:0 8px 14px rgba(0,0,0,.3);white-space:nowrap;}
+
+/* ---- 방탈출: 그림 속 물건 ---- */
+.es-hot{cursor:pointer;}
+.es-hot:not(.done){animation:hotglow 1.6s ease-in-out infinite;}
+.es-hot.door{animation:none;}
+@keyframes hotglow{0%,100%{filter:drop-shadow(0 0 0 rgba(255,232,115,0))}50%{filter:drop-shadow(0 0 4px #ffe873) drop-shadow(0 0 2px #fff)}}
+.es-hot.done{opacity:.92;}
+.es-badge rect{fill:#1c2160;stroke:#ffe873;stroke-width:1.5;}
+.es-badge text{fill:#ffe873;font-size:9px;font-family:Jua,sans-serif;}
+.es-badge.ok rect{fill:#22c56b;stroke:#fff;} .es-badge.ok text{fill:#fff;}
+.es-badge{pointer-events:none;}
+#esBubble{pointer-events:none;animation:bubbob 2s ease-in-out infinite;}
+@keyframes bubbob{0%,100%{transform:translateY(0)}50%{transform:translateY(-2px)}}
+.es-cluebar{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;}
+.es-clue{font-family:'Jua';font-size:13px;background:rgba(255,255,255,.12);color:#fff;border:2px dashed #c9b8ff;border-radius:10px;padding:6px 9px;cursor:pointer;}
+.es-clue b{color:#ffe873;}
+.es-clue.done{background:#22c56b33;border:2px solid #22c56b;}
+
+/* ---- 반 선택 ---- */
+.cls-lb{text-align:center;font-size:14px;color:var(--grey);margin:2px 0 6px;}
+.cls-pick{display:flex;gap:8px;margin-bottom:10px;}
+.cls-pick button{flex:1;font-family:'Jua';font-size:17px;padding:11px 0;border-radius:14px;border:3px solid var(--deep);background:#fff;color:var(--deep);cursor:pointer;}
+.cls-pick button.on{background:#ffe14d;box-shadow:0 0 0 3px #ff7ae0;}
+
+/* ---- 관리자 ---- */
+.ad-cls{margin-bottom:14px;} .ad-h{font-family:'Jua';font-size:17px;color:var(--deep);border-bottom:3px solid var(--deep);padding-bottom:4px;margin-bottom:6px;}
+.ad-row{display:grid;grid-template-columns:1fr auto;gap:2px 8px;padding:7px 4px;border-bottom:1px dashed #c9cdf0;font-size:14px;}
+.ad-row small{grid-column:1/-1;color:var(--grey);font-size:11.5px;line-height:1.4;}
+
+#esLight path{opacity:0;transition:opacity .6s .3s;} #esSvg.open #esLight path{opacity:.55;}
+
 </style>
 </head>
 <body>
@@ -675,6 +737,7 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
       <div id="ngLast" style="text-align:center;margin:0 0 8px;display:none">
         <button type="button" class="nickbtn" id="ngLastBtn" style="cursor:pointer"></button>
       </div>
+      <div class="cls-lb">내 반을 골라 주세요</div><div class="cls-pick" id="ngCls"><button type="button" data-c="월요반">월요반</button><button type="button" data-c="수요반">수요반</button></div>
       <input id="ngNick" maxlength="12" placeholder="예) 쏘피짱, Jenny" style="width:100%;font-family:'Jua';font-size:17px;padding:13px;border:3px solid var(--deep);border-radius:14px;outline:none;margin-bottom:6px;text-align:center" />
       <div id="ngMsg" style="text-align:center;font-size:13px;color:var(--red);min-height:18px;margin-bottom:6px"></div>
       <button class="bigbtn gold" id="ngStart">시작하기 🚀</button>
@@ -698,29 +761,22 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
       <div id="homeSophie" class="sophie"></div>
     </div>
         <button type="button" class="sndchk" id="sndChk">🔈 소리가 안 들리나요? <u>여기를 눌러 소리 테스트</u></button>
-    <div class="sec"><span class="lb">🎯 표현 복습</span><span class="ln"></span></div>
-    <div class="tiles">
-      <div class="tile q" data-mode="quest"><div class="ic">🎯</div><div class="tt">뜻 퀘스트</div><div class="td">영작까지 하면 코인 ×2</div></div>
-      <div class="tile t" data-mode="time"><div class="ic">⏱️</div><div class="tt">타임어택</div><div class="td">30초 · 랭킹 자동 등록</div></div>
-    </div>
-    <div class="tiles one" style="margin-top:11px">
-      <div class="tile wide" data-mode="apply"><div class="ic">✏️</div>
-        <div class="tx"><div class="tt">실전 빈칸 채우기</div><div class="td">일상 문장 속 빈칸에 오늘 표현 넣기</div></div>
-        <div class="go">▶</div></div>
+    <div class="sec"><span class="lb">🎯 표현 복습 &amp; 회화 응용</span><span class="ln"></span></div>
+    <div class="tiles three">
+      <div class="tile q" data-mode="quest"><div class="ic">🎯</div><div class="tt">뜻 퀘스트</div><div class="td">영작하면 코인×2</div></div>
+      <div class="tile s" data-mode="situ"><div class="ic">💬</div><div class="tt">이럴 땐<br>뭐라고?</div><div class="td">상황 회화</div></div>
+      <div class="tile q" data-mode="apply"><div class="ic">✏️</div><div class="tt">실전 빈칸</div><div class="td">일상 문장 채우기</div></div>
     </div>
     <div class="sec"><span class="lb">🎮 게임으로 복습</span><span class="ln"></span></div>
-    <div class="tiles">
-      <div class="tile hot" data-mode="bingo"><div class="ic">🎱</div><div class="tt">AI 빙고 대결</div><div class="td">3×3 · 3빙고 먼저! 승리 +100</div></div>
-      <div class="tile hot" data-mode="run"><div class="ic">🍄</div><div class="tt">레벨업 런</div><div class="td" id="runTileLv">정답마다 점프 · Lv.1</div></div>
+    <div class="tiles three">
+      <div class="tile hot" data-mode="bingo"><div class="ic">🎱</div><div class="tt">AI 빙고</div><div class="td">3빙고 먼저!</div></div>
+      <div class="tile hot" data-mode="maze"><div class="ic">🟡</div><div class="tt">미로 먹기</div><div class="td">몬스터 피하기</div></div>
+      <div class="tile hot" data-mode="escape"><div class="ic">🔐</div><div class="tt">방탈출</div><div class="td">Escape Room</div></div>
     </div>
-    <div class="tiles" style="margin-top:11px">
-      <div class="tile hot" data-mode="maze"><div class="ic">🟡</div><div class="tt">미로 먹기</div><div class="td">정답 먹고 몬스터 피하기</div></div>
-      <div class="tile hot" data-mode="escape"><div class="ic">🔐</div><div class="tt">방탈출 게임</div><div class="td">Escape Room · 비밀번호 5자리</div></div>
-    </div>
-    <div class="sec"><span class="lb">💬 회화 응용</span><span class="ln"></span></div>
+    <div class="sec"><span class="lb">⏱️ 타임어택</span><span class="ln"></span></div>
     <div class="tiles one">
-      <div class="tile s wide" data-mode="situ"><div class="ic">💬</div>
-        <div class="tx"><div class="tt">이럴 땐 뭐라고?</div><div class="td">상황 보고 알맞은 영어 고르기</div></div>
+      <div class="tile t wide ta-hero" data-mode="time"><div class="ic">🏆</div>
+        <div class="tx"><div class="tt">타임어택! 1등에 도전하세요!</div><div class="td">30초 동안 최대한 많이 · 랭킹 자동 등록</div></div>
         <div class="go">▶</div></div>
     </div>
     <div style="height:8px"></div>
@@ -1213,7 +1269,7 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
     </div>
     <!-- 1) 배치 -->
     <div id="bgSetup">
-      <div class="bg-guide">① 아래 영어 표현을 골라 <b>내 빙고판</b> 원하는 칸에 놓아요<br>② 9칸을 다 채우면 <b>대결 시작!</b></div>
+      <div class="bg-guide">① 아래 영어 표현을 <b>끌어다(드래그)</b> 내 빙고판 원하는 칸에 놓아요<br>② 놓은 칸끼리도 끌어서 자리 바꾸기 OK · 9칸 채우면 <b>대결 시작!</b></div>
       <div class="bg-board3" id="bgSetBoard"></div>
       <div class="bg-bank" id="bgBank"></div>
       <div class="bg-btns"><button class="ghostbtn" id="bgAuto" style="background:#fff">🎲 랜덤 배치</button><button class="ghostbtn" id="bgClear" style="background:#fff">↺ 다시 놓기</button></div>
@@ -1306,30 +1362,99 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
       <button class="bigbtn gold" id="esStartBtn" style="margin-top:14px">이 캐릭터로 시작! 🚀</button>
     </div>
     <div id="esMain" style="display:none">
-      <div class="es-scene"><svg id="esSvg" viewBox="0 0 320 190" xmlns="http://www.w3.org/2000/svg">
-        <defs><linearGradient id="esWall" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#5b4b9a"/><stop offset="1" stop-color="#3b2f6e"/></linearGradient>
-          <radialGradient id="esGlow"><stop offset="0" stop-color="#fffbe0"/><stop offset="1" stop-color="#ffd84d"/></radialGradient></defs>
-        <rect width="320" height="190" fill="url(#esWall)"/>
-        <rect y="150" width="320" height="40" fill="#6b4a35"/><rect y="148" width="320" height="4" fill="#4a3324"/>
-        <path d="M0 160 H320 M0 172 H320" stroke="#5a3e2c" stroke-width="2"/>
-        <g opacity=".9"><rect x="22" y="38" width="46" height="34" rx="3" fill="#2a2350" stroke="#c9b8ff" stroke-width="2.5"/><path d="M45 38 V72 M22 55 H68" stroke="#c9b8ff" stroke-width="2"/><circle cx="58" cy="47" r="4" fill="#fff6c8"/></g>
-        <circle cx="96" cy="44" r="11" fill="#fff" stroke="#2a1a0e" stroke-width="2.5"/><path d="M96 44 V37 M96 44 l5 3" stroke="#2a1a0e" stroke-width="2" stroke-linecap="round"/>
-        <rect x="262" y="34" width="34" height="26" fill="#fff" stroke="#2a1a0e" stroke-width="2.5"/><path d="M266 56 l8 -10 6 7 5 -5 7 8z" fill="#7fd08a"/>
-        <rect x="121" y="44" width="78" height="108" rx="3" fill="#2a1a0e"/>
-        <g id="esLight"><rect x="126" y="49" width="68" height="103" fill="url(#esGlow)"/>
-          <path d="M160 100 L110 20 M160 100 L210 20 M160 100 L90 70 M160 100 L230 70" stroke="#fff6b0" stroke-width="5" opacity=".55"/></g>
-        <g id="esDoorPanel"><rect x="126" y="49" width="68" height="103" fill="#9a6338" stroke="#2a1a0e" stroke-width="2.5"/>
-          <rect x="134" y="58" width="52" height="36" rx="3" fill="none" stroke="#6b4426" stroke-width="2.5"/><rect x="134" y="102" width="52" height="40" rx="3" fill="none" stroke="#6b4426" stroke-width="2.5"/>
-          <circle cx="184" cy="104" r="4" fill="#ffd84d" stroke="#2a1a0e" stroke-width="2"/></g>
-        <g id="esKeypadIcon"><rect x="204" y="86" width="16" height="22" rx="3" fill="#1c2160" stroke="#c9b8ff" stroke-width="1.8"/><circle id="esLed" cx="212" cy="91" r="2.2" fill="#ff5a6e"/>
-          <path d="M207 97 h10 M207 101 h10 M207 105 h10" stroke="#7ff8ff" stroke-width="1.6"/></g>
-        <g id="esCharWrap" style="transform:translate(244px,86px)"><g id="esChar"></g></g>
+      <div class="es-scene"><svg id="esSvg" viewBox="0 0 320 220" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="esBW" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7363c4"/><stop offset="1" stop-color="#55479e"/></linearGradient>
+          <linearGradient id="esLW" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#3a2f78"/><stop offset="1" stop-color="#5d4fae"/></linearGradient>
+          <linearGradient id="esRW" x1="1" y1="0" x2="0" y2="0"><stop offset="0" stop-color="#3a2f78"/><stop offset="1" stop-color="#5d4fae"/></linearGradient>
+          <linearGradient id="esFl" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7d5338"/><stop offset="1" stop-color="#a8714a"/></linearGradient>
+          <radialGradient id="esGlow"><stop offset="0" stop-color="#fffbe0"/><stop offset="1" stop-color="#ffd84d"/></radialGradient>
+          <radialGradient id="esLamp" cx=".5" cy="0" r="1"><stop offset="0" stop-color="#fff6c8" stop-opacity=".35"/><stop offset="1" stop-color="#fff6c8" stop-opacity="0"/></radialGradient>
+        </defs>
+        <!-- 방 (원근) -->
+        <path d="M0 0 H320 L256 38 H64 Z" fill="#2c2460"/>
+        <path d="M0 0 L64 38 V170 L0 220 Z" fill="url(#esLW)"/>
+        <path d="M320 0 L256 38 V170 L320 220 Z" fill="url(#esRW)"/>
+        <rect x="64" y="38" width="192" height="132" fill="url(#esBW)"/>
+        <path d="M0 220 L64 170 H256 L320 220 Z" fill="url(#esFl)"/>
+        <path d="M102 170 L64 220 M140 170 L128 220 M180 170 L192 220 M218 170 L256 220" stroke="#6a4430" stroke-width="1.6" opacity=".7"/>
+        <path d="M47 183 H273 M28 198 H292" stroke="#6a4430" stroke-width="1.2" opacity=".5"/>
+        <rect x="64" y="165" width="192" height="5" fill="#3e3280"/>
+        <path d="M0 214 L64 165 M320 214 L256 165" stroke="#2e2566" stroke-width="5"/>
+        <path d="M64 38 V170 M256 38 V170 M64 38 H256" stroke="#2a2156" stroke-width="2"/>
+        <!-- 천장 조명 -->
+        <path d="M160 0 V12" stroke="#1d1f4d" stroke-width="2"/><path d="M148 20 Q160 8 172 20 Z" fill="#ffe14d" stroke="#1d1f4d" stroke-width="2"/>
+        <path d="M150 20 L96 170 H224 L170 20 Z" fill="url(#esLamp)"/>
+        <!-- 출입문 -->
+        <rect x="134" y="84" width="52" height="86" rx="2" fill="#2a1a0e"/>
+        <g id="esLight"><rect x="138" y="88" width="44" height="82" fill="url(#esGlow)"/>
+          <path d="M160 130 L110 40 M160 130 L210 40 M160 130 L80 100 M160 130 L240 100" stroke="#fff6b0" stroke-width="5" opacity=".55"/></g>
+        <rect x="124" y="65" width="72" height="16" rx="3" fill="#2a1a0e" stroke="#c9a86b" stroke-width="1.5"/>
+        <text id="esOrdSvg" x="160" y="76.8" text-anchor="middle" font-size="9.5" fill="#ffe873"></text>
+        <g id="esDoorHot" class="es-hot door">
+          <g id="esDoorPanel"><rect x="138" y="88" width="44" height="82" fill="#a06a3c" stroke="#2a1a0e" stroke-width="2.2"/>
+            <rect x="143" y="94" width="34" height="30" rx="2" fill="none" stroke="#6b4426" stroke-width="2"/><rect x="143" y="130" width="34" height="34" rx="2" fill="none" stroke="#6b4426" stroke-width="2"/>
+            <circle cx="176" cy="132" r="3.2" fill="#ffd84d" stroke="#2a1a0e" stroke-width="1.6"/></g>
+          <g id="esKeypadIcon"><rect x="190" y="118" width="13" height="18" rx="2.5" fill="#1c2160" stroke="#c9b8ff" stroke-width="1.6"/><circle id="esLed" cx="196.5" cy="122.5" r="1.9" fill="#ff5a6e"/>
+            <path d="M193 127 h7 M193 130 h7 M193 133 h7" stroke="#7ff8ff" stroke-width="1.3"/></g>
+        </g>
+        <!-- 책장 -->
+        <g class="es-hot" data-id="shelf">
+          <path d="M72 92 L80 86 H122 L114 92 Z" fill="#8a5a35" stroke="#2a1a0e" stroke-width="1.5"/>
+          <path d="M114 92 L122 86 V164 L114 170 Z" fill="#6b4426" stroke="#2a1a0e" stroke-width="1.5"/>
+          <rect x="72" y="92" width="42" height="78" fill="#8a5a35" stroke="#2a1a0e" stroke-width="2"/>
+          <rect x="76" y="96" width="34" height="70" fill="#4a2e1c"/>
+          <path d="M76 119 H110 M76 143 H110" stroke="#8a5a35" stroke-width="3"/>
+          <g stroke="#1d1f4d" stroke-width=".8"><rect x="78" y="101" width="5" height="17" fill="#ff7ae0"/><rect x="83" y="99" width="6" height="19" fill="#7ff8ff"/><rect x="89" y="103" width="4" height="15" fill="#ffe14d"/><rect x="95" y="104" width="12" height="5" fill="#9cf29a" transform="rotate(-12 101 106)"/>
+            <rect x="78" y="126" width="6" height="16" fill="#ffb15c"/><rect x="84" y="124" width="5" height="18" fill="#8f7bff"/><rect x="94" y="127" width="6" height="15" fill="#ff7a8a"/><rect x="100" y="125" width="5" height="17" fill="#7ff8ff"/>
+            <rect x="80" y="149" width="7" height="16" fill="#9cf29a"/><rect x="87" y="151" width="5" height="14" fill="#ffe14d"/><rect x="97" y="148" width="6" height="17" fill="#ff7ae0"/></g>
+        </g>
+        <!-- 벽시계 -->
+        <g class="es-hot" data-id="clock">
+          <circle cx="96" cy="62" r="14" fill="#fff8e6" stroke="#2a1a0e" stroke-width="3"/>
+          <circle cx="96" cy="62" r="1.8" fill="#2a1a0e"/>
+          <path d="M96 62 V53 M96 62 l6 4" stroke="#2a1a0e" stroke-width="2" stroke-linecap="round"/>
+          <path d="M96 50.5 v2 M107.5 62 h-2 M96 73.5 v-2 M84.5 62 h2" stroke="#2a1a0e" stroke-width="1.4"/>
+        </g>
+        <!-- 액자 (왼쪽 벽) -->
+        <g class="es-hot" data-id="frame">
+          <path d="M14 56 L50 66 V102 L14 106 Z" fill="#d9a441" stroke="#2a1a0e" stroke-width="2"/>
+          <path d="M19 62 L45 69.5 V97.5 L19 100 Z" fill="#bfe9ff"/>
+          <path d="M19 92 L28 82 L35 89 L40 84 L45 90 V97.5 L19 100 Z" fill="#6fd27f"/>
+          <circle cx="38" cy="75" r="3" fill="#ffe14d"/>
+        </g>
+        <!-- 서랍장 -->
+        <g class="es-hot" data-id="drawer">
+          <path d="M208 128 L214 123 H254 L248 128 Z" fill="#c98b5a" stroke="#2a1a0e" stroke-width="1.5"/>
+          <rect x="208" y="128" width="40" height="42" fill="#b7784a" stroke="#2a1a0e" stroke-width="2"/>
+          <path d="M248 128 L254 123 V165 L248 170 Z" fill="#8a5a35" stroke="#2a1a0e" stroke-width="1.5"/>
+          <path d="M210 142 H246 M210 156 H246" stroke="#2a1a0e" stroke-width="1.5"/>
+          <g fill="#ffd84d" stroke="#2a1a0e" stroke-width="1"><rect x="224" y="133" width="8" height="3" rx="1.5"/><rect x="224" y="147" width="8" height="3" rx="1.5"/><rect x="224" y="161" width="8" height="3" rx="1.5"/></g>
+          <path d="M222 123 l3 -9 h6 l3 9 Z" fill="#7ff8ff" stroke="#2a1a0e" stroke-width="1.3"/>
+        </g>
+        <!-- 화분 -->
+        <g class="es-hot" data-id="plant">
+          <ellipse cx="34" cy="214" rx="17" ry="4" fill="#000" opacity=".2"/>
+          <path d="M34 182 Q18 168 14 150 Q30 158 34 176 Q34 152 44 140 Q48 160 36 180 Q48 166 58 162 Q52 178 36 186 Z" fill="#4fbf63" stroke="#1d4d2a" stroke-width="1.6"/>
+          <path d="M20 184 H48 L44 212 H24 Z" fill="#e0794a" stroke="#2a1a0e" stroke-width="2"/>
+          <rect x="18" y="181" width="32" height="6" rx="2" fill="#f08e5c" stroke="#2a1a0e" stroke-width="1.6"/>
+        </g>
+        <!-- 단서 배지 -->
+        <g id="esBadges"></g>
+        <!-- 캐릭터 + 말풍선 -->
+        <g id="esCharWrap" style="transform:translate(252px,138px) scale(1.15)"><g id="esChar"></g></g>
+        <g id="esBubble">
+          <rect x="194" y="84" width="124" height="25" rx="11" fill="#fff" stroke="#1d1f4d" stroke-width="2"/>
+          <path d="M268 108 l9 22 l3 -22" fill="#fff" stroke="#1d1f4d" stroke-width="2" stroke-linejoin="round"/>
+          <rect x="266" y="105" width="16" height="3.4" fill="#fff"/>
+          <text x="256" y="100.5" text-anchor="middle" font-size="10" font-family="Jua, sans-serif" fill="#1d1f4d">Help me get out of here!</text>
+        </g>
         <text id="esFree" x="160" y="30" text-anchor="middle" font-family="'Press Start 2P',monospace" font-size="15" fill="#ffe873" stroke="#ff5fc8" stroke-width="1" opacity="0">ESCAPED!</text>
       </svg></div>
       <div class="es-story" id="esStory"></div>
       <div class="es-room">
-        <div class="es-objs" id="esObjs"></div>
-        <div class="es-door" id="esDoor"><div class="ic">🚪</div><div><div style="font-size:15px">출입문 · 비밀번호 입력</div><div style="font-size:12px;color:#ffd9b0">문에 새겨진 순서대로 숫자를 넣어요</div><div class="ord" id="esOrd"></div></div></div>
+        <div class="es-cluebar" id="esObjs"></div>
+        <div class="es-door" id="esDoor"><div class="ic">🚪</div><div><div style="font-size:15px">출입문 · 비밀번호 입력</div><div style="font-size:12px;color:#ffd9b0">문 위에 새겨진 기호 순서대로 숫자를 넣어요</div><div class="ord" id="esOrd"></div></div></div>
       </div>
       <div style="text-align:center;margin-top:10px"><button class="ghostbtn" id="esChangeChar" style="background:#fff">🧑 캐릭터 바꾸기</button></div>
     </div>
@@ -1354,6 +1479,23 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
     <div class="footer">쏘피쌤과 함께하는 복습 게임~!</div>
   </section>
 
+
+  <!-- 게임 설명 (시작 전) -->
+  <div class="howto" id="howTo"><div class="howto-card">
+    <div class="howto-ic" id="htIc"></div>
+    <div class="howto-t" id="htTitle"></div>
+    <ol class="howto-b" id="htBody"></ol>
+    <div class="howto-demo" id="htDemo"></div>
+    <button class="bigbtn gold" id="htGo">알겠어요, 시작! ▶</button>
+    <button class="ghostbtn" id="htBack" style="margin-top:8px;width:100%;padding:10px;background:#fff">↩ 홈으로</button>
+  </div></div>
+
+  <section id="admin" class="screen">
+    <div class="topbar"><button class="iconbtn" onclick="location.href=location.pathname">게임으로</button><div class="grow"></div><button class="iconbtn" onclick="openAdmin()">새로고침</button></div>
+    <div class="card"><div class="retro" style="text-align:center;font-size:13px;color:var(--deep)">참여 현황 (관리자)</div>
+      <p style="text-align:center;font-size:13px;color:var(--grey);margin:6px 0 10px">이번 주 게임에 들어온 학생 · 반별</p>
+      <div id="adList"></div></div>
+  </section>
   <!-- ============ RESULT ============ -->
   <section id="result" class="screen">
     <div class="card result">
@@ -2330,7 +2472,7 @@ function showRankingOnly(){
 
 /* ============ RESULT ============ */
 function resultScreen(o){
-  updateWallet(); submitCoins();
+  updateWallet(); submitCoins(); logPlay(LT_GAME||o.mode||'', o.s1!=null?String(o.s1):'', o.earned||0);
   const rb=$('rankBox'), big=document.querySelector('#result .big'), sg=document.querySelector('#result .statgrid'), rf=document.querySelector('#rankBox .rankform');
   if(big)big.style.display=''; if(sg)sg.style.display=''; if(rf)rf.style.display='';
   if((o.mode==='time'||o.mode==='escape') && LEADERBOARD_URL){ rankMode = o.mode==='escape'?MODE_ESC:MODE_TIME;
@@ -2527,12 +2669,14 @@ function bgPaintSetup(){
   const bd=$('bgSetBoard'); bd.innerHTML='';
   bg.me.forEach((ii,p)=>{ const c=document.createElement('div');
     if(ii<0){ c.className='bg-c3 empty'+(bg.sel>=0?' tgt':''); c.textContent='+'; }
-    else { c.className='bg-c3'; c.textContent=shortLabel(bg.items[ii].en); }
-    c.onclick=()=>bgPlace(p); bd.appendChild(c); });
+    else { c.className='bg-c3 filled'; c.textContent=shortLabel(bg.items[ii].en); }
+    c.dataset.p=p;
+    if(ii<0) c.onclick=()=>bgPlace(p); else bgDragInit(c,{cell:p});
+    bd.appendChild(c); });
   const bank=$('bgBank'); bank.innerHTML='';
   bg.items.forEach((it,ii)=>{ if(bg.me.includes(ii))return; const b=document.createElement('button');
-    b.className='bg-chip'+(bg.sel===ii?' sel':''); b.textContent=shortLabel(it.en);
-    b.onclick=()=>{ bg.sel=(bg.sel===ii?-1:ii); sfx.flip(); bgPaintSetup(); }; bank.appendChild(b); });
+    b.className='bg-chip'+(bg.sel===ii?' sel':''); b.textContent=shortLabel(it.en); b.type='button';
+    bgDragInit(b,{bank:ii}); bank.appendChild(b); });
   if(!bank.children.length) bank.innerHTML='<div style="color:#fff;font-size:14px">✨ 배치 완료! 대결을 시작해요</div>';
   $('bgGo').disabled=bg.me.includes(-1);
 }
@@ -2540,6 +2684,34 @@ function bgPlace(p){
   if(bg.me[p]>=0){ bg.me[p]=-1; sfx.flip(); bgPaintSetup(); return; }      // 놓인 칸 누르면 다시 빼기
   let ii=bg.sel; if(ii<0){ ii=bg.items.findIndex((_,k)=>!bg.me.includes(k)); }
   if(ii<0)return; bg.me[p]=ii; bg.sel=-1; sfx.coin(); bgPaintSetup();
+}
+/* 끌어다 놓기 (손가락·마우스 공통). 살짝 누르기만 하면 기존처럼 '선택 → 칸 누르기' */
+function bgDragInit(el,src){
+  el.addEventListener('pointerdown',e=>{
+    if(e.button>0) return; e.preventDefault();
+    const sx=e.clientX, sy=e.clientY; let ghost=null, over=null;
+    const move=ev=>{
+      if(!ghost && Math.hypot(ev.clientX-sx,ev.clientY-sy)>6){
+        ghost=document.createElement('div'); ghost.className='bg-ghost'; ghost.textContent=el.textContent; document.body.appendChild(ghost); el.classList.add('dragging'); }
+      if(!ghost) return;
+      ghost.style.left=ev.clientX+'px'; ghost.style.top=ev.clientY+'px';
+      const t=document.elementFromPoint(ev.clientX,ev.clientY), c=t&&t.closest?t.closest('#bgSetBoard .bg-c3'):null;
+      if(over&&over!==c) over.classList.remove('dropover'); if(c) c.classList.add('dropover'); over=c; };
+    const up=()=>{
+      window.removeEventListener('pointermove',move); window.removeEventListener('pointerup',up); window.removeEventListener('pointercancel',up);
+      if(ghost){ ghost.remove(); el.classList.remove('dragging'); if(over) over.classList.remove('dropover');
+        if(over) bgDrop(src,+over.dataset.p);
+        else if(src.cell!=null){ bg.me[src.cell]=-1; sfx.flip(); bgPaintSetup(); }   // 판 밖으로 끌어내면 빼기
+        else bgPaintSetup(); }
+      else if(src.bank!=null){ bg.sel=(bg.sel===src.bank?-1:src.bank); sfx.flip(); bgPaintSetup(); }
+      else bgPlace(src.cell); };
+    window.addEventListener('pointermove',move); window.addEventListener('pointerup',up); window.addEventListener('pointercancel',up);
+  });
+}
+function bgDrop(src,p){
+  if(src.cell!=null){ if(src.cell===p){ bgPaintSetup(); return; } const t=bg.me[p]; bg.me[p]=bg.me[src.cell]; bg.me[src.cell]=t; }  // 자리 바꾸기
+  else bg.me[p]=src.bank;   // 원래 있던 표현은 자동으로 아래 보기로 돌아감
+  bg.sel=-1; sfx.coin(); bgPaintSetup();
 }
 function bgAuto(){ bg.me=shuffle([...Array(9).keys()]); bg.sel=-1; sfx.coin(); bgPaintSetup(); }
 function bgClear(){ bg.me=Array(9).fill(-1); bg.sel=-1; bgPaintSetup(); }
@@ -2730,6 +2902,7 @@ const MODE_ESC='escape_7w'+WEEK, K_ESCHAR='lt7_eschar';
 const ES_OBJS=[{id:'shelf',ic:'📚',nm:'책장'},{id:'clock',ic:'🕰️',nm:'벽시계'},{id:'frame',ic:'🖼️',nm:'액자'},
                {id:'drawer',ic:'🗄️',nm:'서랍'},{id:'plant',ic:'🪴',nm:'화분'}];
 const ES_SYMS=['▲','●','■','★','♥'];
+const ES_POS={shelf:[93,180],clock:[96,40],frame:[32,48],drawer:[228,180],plant:[36,140]};
 const ES_NEED=2, ES_PEN=15;
 const NUMW=['zero','one','two','three','four','five','six','seven','eight','nine'];
 /* 듣기 없이 읽고 푸는 문제 7종 */
@@ -2789,7 +2962,8 @@ function esBegin(){
   clearInterval(es.timer); es.timer=setInterval(esTick,500);
   $('esOrd').textContent=es.order.join(' '); $('esOrd2').textContent=es.order.join(' ');
   const svg=$('esSvg'); svg.classList.remove('open','walk','free');
-  const cw=$('esCharWrap'); cw.style.transition='none'; cw.style.transform='translate(244px,86px)'; cw.style.opacity='1'; void cw.getBoundingClientRect(); cw.style.transition='';
+  const cw=$('esCharWrap'); cw.style.transition='none'; cw.style.transform='translate(252px,138px) scale(1.15)'; cw.style.opacity='1'; void cw.getBoundingClientRect(); cw.style.transition='';
+  $('esBubble').style.display=''; $('esOrdSvg').textContent=es.order.join(' ');
   $('esChar').innerHTML=esCharSVG(getEsChar());
   esRoom(); esTick();
 }
@@ -2798,14 +2972,21 @@ function mmss(s){ return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%6
 function esTick(){ if(!es)return; $('esTime').textContent='⏱ '+mmss(esSecs()); }
 function esRoom(){
   $('esMain').style.display=''; $('esQuiz').style.display='none'; $('esKeypad').style.display='none';
+  // 그림 속 물건 = 클릭 영역. 배지로 기호와 진행도 표시
+  const svg=$('esSvg'), bd=$('esBadges'); bd.innerHTML='';
+  es.objs.forEach(o=>{ const g=svg.querySelector('.es-hot[data-id="'+o.id+'"]'); if(!g) return;
+    g.classList.toggle('done',o.done); g.onclick=()=>{ if(!o.done) esOpen(o); else sfx.flip(); };
+    const [x,y]=ES_POS[o.id], txt=o.done?o.sym+' ✓':o.sym+' '+o.got+'/'+ES_NEED, w=o.done?28:34;
+    bd.insertAdjacentHTML('beforeend',`<g class="es-badge${o.done?' ok':''}" transform="translate(${x-w/2},${y-7})"><rect width="${w}" height="14" rx="7"/><text x="${w/2}" y="10.5" text-anchor="middle">${txt}</text></g>`); });
+  $('esDoorHot').onclick=esDoor;
+  // 아래 단서 막대 (찾은 단서 확인 + 눌러도 조사 가능)
   const box=$('esObjs'); box.innerHTML='';
-  es.objs.forEach(o=>{ const d=document.createElement('div'); d.className='es-obj'+(o.done?' done':'');
-    d.innerHTML=`<span class="sym">${o.sym}</span><div class="ic">${o.ic}</div><div class="nm">${o.nm}</div>`+
-      (o.done?`<div class="dg" style="font-family:'Jua';font-size:12.5px">${o.sym} = ${esc(o.clue)}</div>`:`<div class="st">조사하기 · ${o.got}/${ES_NEED}</div>`);
+  es.objs.forEach(o=>{ const d=document.createElement('button'); d.type='button'; d.className='es-clue'+(o.done?' done':'');
+    d.innerHTML=o.done?`<b>${o.sym}</b> = ${esc(o.clue)}`:`<b>${o.sym}</b> ${o.nm} ?`;
     d.onclick=()=>{ if(!o.done) esOpen(o); else sfx.flip(); }; box.appendChild(d); });
   const n=es.objs.filter(o=>o.done).length, all=n===es.objs.length; $('esDoor').classList.toggle('ready',all);
   $('esStory').innerHTML= all ? '🔑 단서를 모두 찾았어요! 영어로 된 숫자를 숫자로 바꿔서 <b>문</b>에 입력하세요.'
-    : `쏘피쌤의 연구실에 갇혔어요! 🔒 물건을 조사해 <b>비밀번호 ${es.objs.length}자리</b>를 찾으세요. <b>(${n}/${es.objs.length})</b><br><span style="font-size:12.5px;opacity:.85">물건마다 문제 ${ES_NEED}개 · 틀리면 +${ES_PEN}초 · 단서는 영어 숫자로 나와요!</span>`;
+    : `방 안의 <b>반짝이는 물건</b>을 눌러 조사하세요! <b>(${n}/${es.objs.length})</b><br><span style="font-size:12.5px;opacity:.85">책장 · 벽시계 · 액자 · 서랍장 · 화분 · 물건마다 문제 ${ES_NEED}개 · 틀리면 +${ES_PEN}초</span>`;
 }
 function esOpen(o){ es.cur=o; $('esMain').style.display='none'; $('esQuiz').style.display='block'; esQ(); window.scrollTo(0,0); }
 function esQ(){
@@ -2863,8 +3044,9 @@ function esExit(secs,score){
   $('esStory').innerHTML='🔓 문이 열렸어요! 밖으로 나가요…'; window.scrollTo(0,0);
   const svg=$('esSvg'), cw=$('esCharWrap');
   svg.classList.add('free'); setTimeout(()=>{ svg.classList.add('open'); sfx.combo(); },300);
-  setTimeout(()=>{ svg.classList.add('walk'); cw.style.transform='translate(141px,86px)'; },1300);
-  setTimeout(()=>{ svg.classList.remove('walk'); cw.style.transform='translate(152px,92px) scale(.55)'; cw.style.opacity='0'; },3200);
+  $('esBubble').style.display='none';
+  setTimeout(()=>{ svg.classList.add('walk'); cw.style.transform='translate(147px,127px) scale(.66)'; },1300);
+  setTimeout(()=>{ svg.classList.remove('walk'); cw.style.transform='translate(151px,134px) scale(.5)'; cw.style.opacity='0'; },3200);
   setTimeout(()=>{ $('esStory').innerHTML='🎉 <b>탈출 성공!</b> 기록 '+mmss(secs); sfx.win(); confetti(); addCoins(50,$('esSvg'),'esCoin'); },3700);
   setTimeout(()=>{ $('esObjs').parentElement.style.display=''; $('esChangeChar').parentElement.style.display='';
     resultScreen({title:'ESCAPED! 탈출 성공',earned:coins-es.coin0,s1:mmss(secs),l1:'탈출 시간',s2:score,l2:'탈출 점수',acc:100,again:startEscape,mode:'escape',score}); },5600);
@@ -3004,12 +3186,65 @@ function mzInit(){
   document.addEventListener('keydown',e=>{ if(!$('maze').classList.contains('active'))return; const m={ArrowUp:'up',ArrowDown:'down',ArrowLeft:'left',ArrowRight:'right'}[e.key]; if(m){ e.preventDefault(); mzSteer(m);} });
 }
 
+/* ============ 게임 설명 (모든 게임 시작 전) ============ */
+const HOWTO={
+  bingo:{ic:'🎱',t:'AI 빙고 대결 · 게임 방법',b:[
+    '영어 표현 9개를 <b>끌어다(드래그)</b> 내 빙고판 원하는 칸에 놓아요. (🎲 랜덤 배치도 OK)',
+    '나와 AI 쏘봇이 <b>번갈아</b> 차례! 위에 <b>한국어 뜻</b>이 나오면 <b>8초 안에</b> 내 판에서 그 영어 표현을 눌러요.',
+    '내 차례에 맞히면 <b>나·쏘봇 둘 다</b> 칸이 칠해지고, 틀리거나 시간이 지나면 <b>쏘봇만</b> 칠해져요.',
+    '쏘봇이 놓치면 그 칸은 <b>나만</b> 칠해져요! 🎁',
+    '가로·세로·대각선 <b>3빙고</b>를 먼저 만들면 승리 · <b>+100 코인</b>']},
+  maze:{ic:'🟡',t:'미로 먹기 · 게임 방법',b:[
+    '미로 속 <b>헤드셋 쏘피</b>가 나예요. 위에 나온 문제의 정답 글자(<b>A·B·C·D</b>)를 찾아 먹으러 가요.',
+    '<b>방향 버튼을 한 번만 톡!</b> 누르면 벽에 닿을 때까지 그 방향으로 <b>계속 움직여요.</b> (꾹 누르거나 연타할 필요 없어요)',
+    '갈림길 전에 <b>미리 다음 방향을 눌러 두면</b> 그 길로 자동으로 꺾어요. 미로를 손가락으로 쓱 밀어도(스와이프) 돼요 · PC는 방향키.',
+    '<b>몬스터</b>에 닿거나 <b>틀린 글자</b>를 먹으면 하트 -1 (하트 3개). 몬스터가 다가오면 반대로 도망!',
+    '정답 <b>8개</b>를 먹으면 클리어!'],
+    demo:'<div class="ht-pad"><span>▲</span><span>◀</span><span>▼</span><span>▶</span></div><div style="font-size:12.5px;color:var(--grey);margin-top:4px">한 번 톡 → 쭉 이동</div>'},
+  escape:{ic:'🔐',t:'방탈출 게임 · 게임 방법',b:[
+    '쏘피쌤 연구실에 갇혔어요! 방 그림 속 <b>반짝이는 물건</b>(책장·벽시계·액자·서랍장·화분)을 눌러 조사해요.',
+    '물건마다 <b>영어 문제 2개</b>를 맞히면 단서가 나와요. 예) <b>▲ = three</b> → 3',
+    '단서 5개를 다 모으면 <b>문</b>을 눌러요. 문 위에 새겨진 <b>기호 순서대로</b> 숫자 5자리를 입력!',
+    '틀리면 <b>+15초</b>. 빨리 탈출할수록 랭킹 점수가 올라가요. (소리 없이도 풀 수 있어요)']}
+};
+function howTo(key,cb){
+  const h=HOWTO[key]; if(!h){ cb(); return; }
+  $('htIc').textContent=h.ic; $('htTitle').textContent=h.t; $('htBody').innerHTML=h.b.map(x=>'<li>'+x+'</li>').join('');
+  $('htDemo').innerHTML=h.demo||''; $('htDemo').style.display=h.demo?'':'none';
+  const o=$('howTo'); o.classList.add('show'); o.scrollTop=0;
+  $('htGo').onclick=()=>{ o.classList.remove('show'); sfx.coin&&sfx.coin(); cb(); };
+  $('htBack').onclick=()=>{ o.classList.remove('show'); };
+}
+
+/* ============ 반 선택 · 참여 기록 · 관리자 보기 ============ */
+const K_CLS='lt7_class'; let LT_GAME='';
+function getCls(){ try{return localStorage.getItem(K_CLS)||'';}catch(e){return '';} }
+function setCls(c){ try{localStorage.setItem(K_CLS,c);}catch(e){} }
+function paintCls(){ const w=$('ngCls'); if(!w) return; const cur=getCls();
+  [...w.children].forEach(b=>{ b.classList.toggle('on',b.dataset.c===cur); b.onclick=()=>{ setCls(b.dataset.c); sfx.flip&&sfx.flip(); paintCls(); $('ngMsg').textContent=''; }; }); }
+const GAME_NM={join:'입장',quest:'뜻 퀘스트',situ:'이럴 땐 뭐라고?',apply:'실전 빈칸',bingo:'AI 빙고',maze:'미로 먹기',escape:'방탈출',time:'타임어택',mc:'뜻 퀘스트'};
+function logPlay(game,result,earned){
+  const nick=getNick(); if(!nick||!LEADERBOARD_URL) return;
+  try{ jsonp({action:'log',nick,cls:getCls()||'미선택',week:'7기 '+WEEK+'주차',game:GAME_NM[game]||game,result:result||'',coins:earned||0}); }catch(e){}
+}
+/* 관리자 보기: 주소 끝에 ?admin 을 붙여 열면 반별 참여자 목록 */
+async function openAdmin(){
+  show('admin'); $('adList').innerHTML='<p style="text-align:center">불러오는 중…</p>';
+  const r=await jsonp({action:'who',week:'7기 '+WEEK+'주차'});
+  if(!r||!Array.isArray(r)){ $('adList').innerHTML='<p style="text-align:center">불러올 수 없어요. 랭킹 서버(Apps Script)를 v4로 업데이트했는지 확인해 주세요.</p>'; return; }
+  const by={}; r.forEach(x=>{ (by[x.cls]=by[x.cls]||[]).push(x); });
+  const order=['월요반','수요반'].concat(Object.keys(by).filter(k=>k!=='월요반'&&k!=='수요반'));
+  $('adList').innerHTML=order.filter(k=>by[k]).map(k=>`<div class="ad-cls"><div class="ad-h">${esc(k)} · ${by[k].length}명</div>`+
+    by[k].sort((a,b)=>b.plays-a.plays).map(x=>`<div class="ad-row"><b>${esc(x.nick)}</b><span>${x.plays}판</span><small>${esc(x.games||'')}<br>마지막 ${esc(x.last||'')}</small></div>`).join('')+'</div>').join('')
+    || '<p style="text-align:center">아직 참여 기록이 없어요.</p>';
+}
+
 /* ============ Wiring ============ */
 $('openStudy').onclick=()=>openStudy('all'); $('sHome').onclick=goHome;
 $('tabAll').onclick=()=>{studyTab='all';renderStudy();}; $('tabWrong').onclick=()=>{studyTab='wrong';renderStudy();};
 $('clearWrong').onclick=()=>{wrong.clear();saveWrong();renderStudy();};
-document.querySelectorAll('.tile').forEach(t=>t.onclick=()=>{ const m=t.dataset.mode;
-  if(m==='quest')startQL('mc'); else if(m==='bingo')startBingo(); else if(m==='run')startRun(); else if(m==='escape')startEscape(); else if(m==='maze')startMaze(); else if(m==='listen')startQL('listen');
+document.querySelectorAll('.tile').forEach(t=>t.onclick=()=>{ const m=t.dataset.mode; LT_GAME=m;
+  if(m==='quest')startQL('mc'); else if(m==='bingo')howTo('bingo',startBingo); else if(m==='run')startRun(); else if(m==='escape')howTo('escape',startEscape); else if(m==='maze')howTo('maze',startMaze); else if(m==='listen')startQL('listen');
   else if(m==='dict')startQL('dict'); else if(m==='apply')startQL('apply'); else if(m==='situ')startQL('situ'); else if(m==='match')startSwipe(); else if(m==='room')enterRoom();
   else if(m==='time'){ LEADERBOARD_URL?openTimeStart():startTime(); } });
 $('qlHome').onclick=()=>goHome(); $('mHome').onclick=()=>{clearInterval(mm&&mm.timer);goHome();}; $('tHome').onclick=()=>{clearInterval(ta&&ta.timer);goHome();};
@@ -3055,13 +3290,13 @@ async function deleteMyRank(){
   setTimeout(()=>openNickGate(),900);
 }
 /* ============ 닉네임 게이트 ============ */
-const BUILD='7-1j';
+const BUILD='7-1k';
 (function(){const b=document.getElementById('buildTag'); if(b) b.textContent='· '+BUILD;})();
 function paintNickChip(){ const n=getNick(), c=$('nickChip'); if(!c)return;
-  if(n){ c.style.display='inline-block'; c.textContent='✏️ '+n; c.title='닉네임 바꾸기';
+  if(n){ c.style.display='inline-block'; c.textContent='✏️ '+(getCls()?getCls().slice(0,1)+' · ':'')+n; c.title='닉네임 바꾸기';
          c.style.cursor='pointer'; c.onclick=()=>openNickGate(true); }
   else c.style.display='none'; }
-function openNickGate(edit){ setSophie($('ngSophie'),'idle'); $('ngNick').value=edit?getNick():'';
+function openNickGate(edit){ paintCls(); setSophie($('ngSophie'),'idle'); $('ngNick').value=edit?getNick():'';
   $('ngMsg').textContent='';
   const prev=lastWeekNick(), wrap=$('ngLast'), btn=$('ngLastBtn');
   if(wrap&&btn){ if(prev && prev!==getNick()){ wrap.style.display='block'; btn.textContent='지난주엔 "'+prev+'" 였어요 · 그대로 쓰기';
@@ -3069,8 +3304,9 @@ function openNickGate(edit){ setSophie($('ngSophie'),'idle'); $('ngNick').value=
     else wrap.style.display='none'; }
   show('nickGate'); setTimeout(()=>{try{$('ngNick').focus();}catch(e){}},250); }
 function confirmNick(){ const n=($('ngNick').value||'').trim().slice(0,12);
+  if(!getCls()){ $('ngMsg').textContent='월요반인지 수요반인지 먼저 골라 주세요 🙂'; return; }
   if(!n){ $('ngMsg').textContent='닉네임을 한 글자 이상 적어 주세요 🙂'; return; }
-  setNick(n); paintNickChip(); ac(); try{sfx.coin();}catch(e){} goHome(); }
+  setNick(n); logPlay('join','',''); paintNickChip(); ac(); try{sfx.coin();}catch(e){} goHome(); }
 function renderMini(olId,list){
   const ol=$(olId), me=getNick(); ol.innerHTML='';
   if(!list||!Array.isArray(list)){ ol.innerHTML='<li class="hr-empty">불러올 수 없어요 😢</li>'; return; }
@@ -3092,7 +3328,7 @@ function refreshSoundBtns(){['muteBtn0','muteBtn1','muteBtn2','muteBtn3','muteBt
 ['muteBtn0','muteBtn1','muteBtn2','muteBtn3','muteBtn4','muteBtn5','muteBtn6','muteBtn7','muteBtn8','muteBtn9','muteBtn10','muteBtn11','muteBtn12','muteBtn13'].forEach(id=>{const b=$(id);if(b)b.onclick=()=>{muted=!muted;if(muted)stopSpeak();refreshSoundBtns();if(!muted){ac();sfx.coin();}};});
 setInterval(()=>{const s=$('homeSophie');if($('home').classList.contains('active')){s.classList.add('bounce');setTimeout(()=>s.classList.remove('bounce'),500);}},2800);
 updateWallet(); paintNickChip(); paintRunTile(); paintSndChk();
-if(getNick()) loadHomeRanks(); else openNickGate();
+if(new URLSearchParams(location.search).has('admin')) openAdmin(); else if(getNick()&&getCls()) loadHomeRanks(); else openNickGate();
 </script>
 </body>
 </html>
