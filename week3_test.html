@@ -848,7 +848,11 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
 .sh-top .sh-arw.sm{width:34px;height:34px;min-width:34px;font-size:14px;border-radius:10px;border:2.5px solid var(--deep);background:#fff;color:var(--deep);cursor:pointer;padding:0;}
 .sh-top .sh-arw.sm:disabled{opacity:.3;}
 .sh-exl .sh-ex{display:block;}
-.wb-pg .wb-blank{width:7.5em;}
+.wb-pg .wb-blank{width:6.5em;min-width:6.5em;max-width:100%;}
+#shadow .sh-exl{grid-template-columns:1fr;gap:4px;}
+#shadow .sh-exl .sh-ex{display:flex;align-items:baseline;gap:8px;padding:5px 10px;}
+#shadow .sh-exl .sh-ex b{display:inline;white-space:nowrap;}
+#shadow .sh-exl .sh-ex span{display:inline;}
 .wb-pg .wb-ta{min-height:42px;}
 
 .sh-tabs{margin:0 0 6px;}
@@ -4322,7 +4326,7 @@ function wbRender(){ const st=wb.st, A=st.ans;
     sec('o','D','나만의 문장','',own.replace('<div class="wb-sub"></div>',''))+
     '</div><div class="wb-nav"><button id="wbPrev">◀ 이전</button><button class="go" id="wbNext">다음 ▶</button></div><button class="wb-again sm" id="wbAgain">↺ 처음부터 다시 풀기</button>';
   $('wbS_o').querySelector('.wb-sub').textContent=WB.own||'오늘 표현 2개 이상으로 3문장 써 보세요';
-  document.querySelectorAll('.wb-blank,.wb-ta').forEach(e=>{ e.addEventListener('focus',()=>{ wb.last=e; }); e.addEventListener('input',()=>{ wbKeep(); }); });
+  document.querySelectorAll('.wb-blank,.wb-ta').forEach(e=>{ e.addEventListener('focus',()=>{ wb.last=e; }); e.addEventListener('input',()=>{ wbKeep(); wbFitBlank(e); }); wbFitBlank(e); });
   document.querySelectorAll('.wb-chip').forEach(wbDragChip);
   document.querySelectorAll('.wb-chk').forEach(b=>b.onclick=()=>wbCheck(b.dataset.k));
   $('wbAgain').onclick=()=>{ wb.st={done:{},ans:{}}; wbSave(); wb.pg=0; wbRender(); window.scrollTo(0,0); };
@@ -4330,7 +4334,8 @@ function wbRender(){ const st=wb.st, A=st.ans;
   document.querySelectorAll('#wbSteps button').forEach(b=>b.onclick=()=>wbPage(+b.dataset.p)); $('wbPrev').onclick=()=>wbPage(wb.pg-1); $('wbNext').onclick=()=>wbPage(wb.pg+1); wbPage(wb.pg||0); }
 function wbPage(j){ const K=['f','x','k','o']; wb.pg=Math.max(0,Math.min(3,j)); K.forEach((k,q)=>{ $('wbS_'+k).classList.toggle('cur',q===wb.pg); const t=$('wbT_'+k); t.classList.toggle('on',q===wb.pg); t.classList.toggle('done',!!(wb.st.done[k])); });
   $('wbPrev').disabled=wb.pg===0; $('wbNext').textContent=wb.pg===3?'🏁 홈으로':'다음 ▶'; $('wbNext').onclick=wb.pg===3?goHome:()=>wbPage(wb.pg+1); $('wbAgain').style.display=wb.pg===3?'':'none'; fitZ=0; window.scrollTo(0,0); fitSoon(); }
-function wbPut(t,txt){ if(!t) return; t.value=txt; t.classList.remove('ok','no'); t.classList.add('pop'); setTimeout(()=>t.classList.remove('pop'),350); wb.last=t; wbKeep(); sfx.flip&&sfx.flip(); }
+function wbFitBlank(e){ if(!e||!e.classList.contains('wb-blank')) return; e.style.width=Math.max(6.5,(e.value||'').length*0.62+1.2)+'em'; }
+function wbPut(t,txt){ if(!t) return; t.value=txt; wbFitBlank(t); t.classList.remove('ok','no'); t.classList.add('pop'); setTimeout(()=>t.classList.remove('pop'),350); wb.last=t; wbKeep(); sfx.flip&&sfx.flip(); }
 function wbDragChip(c){ // 보기 표현을 끌어다 빈칸에 놓기 (톡 누르면 비어 있는 칸에 들어감)
   c.style.touchAction='none';
   c.addEventListener('pointerdown',e=>{ e.preventDefault(); const sx=e.clientX, sy=e.clientY; let g=null, over=null, moved=false;
