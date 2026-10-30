@@ -842,6 +842,9 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
 
 
 .wrap.fit{padding-bottom:6px;min-height:0;}
+.sh-mic{display:flex;align-items:center;gap:8px;background:#fff8d6;border:3px solid var(--deep);border-radius:14px;padding:8px 10px;margin:0 0 8px;color:var(--deep);font-size:14px;line-height:1.4;}
+.sh-mic .t{flex:1;}
+.sh-mic button{flex:none;font-family:'Jua';font-size:15px;border:3px solid var(--deep);background:#f4ff3a;color:var(--deep);border-radius:12px;padding:8px 12px;cursor:pointer;box-shadow:0 3px 0 rgba(0,0,0,.2);}
 #shadow .sh-tabs .sh-tab{display:flex;align-items:center;justify-content:center;gap:5px;padding:9px 2px;}
 #shadow .sh-tabs .sh-tab span{display:inline;margin:0;font-size:14px;}
 #shadow .sh-auto small{display:inline;margin-left:6px;}
@@ -1901,7 +1904,7 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
       <div class="grow"></div>
     </div>
     <div class="sh-tabs"><button class="sh-tab on" data-v="rep">🎧<span>한 문장씩</span></button><button class="sh-tab" data-v="nosub">🙈<span>자막 없이</span></button><button class="sh-tab" data-v="dub">🗣️<span>스스로 말하기</span></button></div>
-    <div class="sh-vwrap"><video id="shV" playsinline webkit-playsinline preload="metadata"></video><div class="sh-cover" id="shCover"><span>자막 가림</span></div><div class="sh-cap" id="shCap"></div><div class="sh-load" id="shLoad">영상 불러오는 중…</div></div>
+    <div class="sh-mic" id="shMic" style="display:none"></div><div class="sh-vwrap"><video id="shV" playsinline webkit-playsinline preload="metadata"></video><div class="sh-cover" id="shCover"><span>자막 가림</span></div><div class="sh-cap" id="shCap"></div><div class="sh-load" id="shLoad">영상 불러오는 중…</div></div>
     <div class="sh-bar"><div class="sh-rates" id="shRates"><button data-r="0.8">0.8배</button><button data-r="1" class="on">1.0배</button><button data-r="1.05">1.05배</button></div><span class="grow"></span><button class="sh-sw" id="shCovBtn">🙈 자막 가리기</button></div>
     <div id="shBody"></div>
     <div class="sh-toast" id="shToast"></div>
@@ -4026,7 +4029,7 @@ function shRecPrep(){ // 반드시 버튼을 누른 그 순간(동기)에 호출
 async function shRecStart(prep){
   const okS=await (prep||shRecPrep()); if(!okS) return false;
   let mr; try{ mr=new MediaRecorder(shRec.stream); }catch(e){ shRecRelease(); shRec.err='NoRecorder'; return false; }
-  shRec.chunks=[]; shRec.mr=mr; mr.ondataavailable=e=>{ if(e.data&&e.data.size) shRec.chunks.push(e.data); }; mr.start(); return true; }
+  shMicOK=true; try{ shMicPaint(); }catch(e){} shRec.chunks=[]; shRec.mr=mr; mr.ondataavailable=e=>{ if(e.data&&e.data.size) shRec.chunks.push(e.data); }; mr.start(); return true; }
 function shRecRelease(){ if(shRec.mr) return; if(shRec.stream){ shRec.stream.getTracks().forEach(t=>t.stop()); shRec.stream=null; } }
 function shRecStop(key){ clearTimeout(shRec.t); return new Promise(res=>{ const mr=shRec.mr; shRec.mr=null;
   if(!mr||mr.state==='inactive'){ shRecRelease(); res(null); return; }
@@ -4048,7 +4051,20 @@ function shMicWhy(){ let inFrame=false; try{ inFrame=window.top!==window.self; }
   if(ios) return '🎙️ 마이크가 <b>거부</b>되어 있어요.<br>주소창 왼쪽 <b>가가(aA)</b> → <b>웹 사이트 설정</b> → 마이크 <b>허용</b> (또는 아이폰 설정 → 앱 → Safari → 마이크 → 허용) 후 새로고침해 주세요.';
   if(and) return '🎙️ 마이크가 <b>거부</b>되어 있어요.<br>주소창 왼쪽 아이콘 → <b>권한</b> → 마이크 <b>허용</b> 후 새로고침해 주세요.';
   return '🎙️ 마이크 권한이 꺼져 있어요. 주소창 왼쪽 🔒 → 마이크 <b>허용</b> 후 다시 눌러 주세요.'; }
-function shNoMic(where){ const t=shMicWhy()+(shRec.err?'<div style="font-size:11px;opacity:.7;margin-top:3px">오류 코드: '+esc(shRec.err)+(window.isSecureContext?'':' · insecure')+'</div>':''); if(where==='dub'){ const s=$('shDubSay'); if(s) s.innerHTML=t; } else shSay(t); sh.noMic=t; }
+let shMicOK=false;
+function shMicAsk(){ // 버튼을 누른 그 순간에 부름 → 브라우저의 '허용' 창
+  const pr=shRecPrep(); pr.then(ok=>{ shMicOK=!!ok; if(ok&&!shRec.mr){ try{ shRec.stream.getTracks().forEach(t=>t.stop()); }catch(e){} shRec.stream=null; } shMicPaint(); }); return pr; }
+function shMicPaint(){ const m=$('shMic'); if(!m) return; if(shMicOK){ m.style.display='none'; return; }
+  const e=shRec.err||'', ua=navigator.userAgent||'', app=/KAKAOTALK|Instagram|NAVER|FBAN|FBAV|Line\/|DaumApps|band/i.test(ua), ios=/iPhone|iPad|iPod/i.test(ua);
+  let t, btn, fn;
+  if(app||e==='NoMedia'){ t='카톡 같은 앱 안에서는 녹음이 안 돼요. '+(ios?'<b>⋯ → Safari로 열기</b>':'<b>⋮ → 다른 브라우저로 열기</b>')+' 후 다시 들어와 주세요'; m.innerHTML='<span class="t">🎙️ '+t+'</span>'; m.style.display='flex'; return; }
+  if(e==='NotAllowedError'||e==='SecurityError'){ t='마이크가 꺼져 있어요. 다시 열면 <b>허용</b> 창이 떠요'; btn='🔄 다시 열기'; fn=()=>{ try{ sessionStorage.setItem('lt7_go','shadow:'+(sh&&sh.view||'rep')); }catch(_){} location.reload(); }; }
+  else if(e){ t='마이크를 쓸 수 없어요 ('+esc(e)+'). 다른 앱의 녹음을 끄고 다시 눌러 주세요'; btn='🎙️ 다시 켜기'; fn=shMicAsk; }
+  else { t='녹음하려면 마이크를 켜 주세요'; btn='🎙️ 마이크 켜기'; fn=shMicAsk; }
+  m.innerHTML='<span class="t">'+t+'</span><button id="shMicB">'+btn+'</button>'; m.style.display='flex'; $('shMicB').onclick=fn; }
+function shMicCheck(){ try{ if(navigator.permissions&&navigator.permissions.query) navigator.permissions.query({name:'microphone'}).then(s=>{ if(s.state==='granted'){ shMicOK=true; } shMicPaint(); s.onchange=()=>{ shMicOK=s.state==='granted'; shMicPaint(); }; }).catch(()=>shMicPaint()); else shMicPaint(); }catch(e){ shMicPaint(); } }
+function shNoMic(where){ shMicOK=false; shMicPaint(); if(true){ const t0=shRec.err==='NotAllowedError'?'🎙️ 마이크가 꺼져 있어요. 위의 <b>🔄 다시 열기</b>를 눌러 허용해 주세요':'🎙️ 위의 노란 칸에서 마이크를 켜 주세요'; if(where==='dub'){ const s=$('shDubSay'); if(s) s.innerHTML=t0; } else shSay(t0); return; } }
+function shNoMicOld(where){ const t=shMicWhy()+(shRec.err?'<div style="font-size:11px;opacity:.7;margin-top:3px">오류 코드: '+esc(shRec.err)+(window.isSecureContext?'':' · insecure')+'</div>':''); if(where==='dub'){ const s=$('shDubSay'); if(s) s.innerHTML=t; } else shSay(t); sh.noMic=t; }
 
 /* ---------- 공통 UI ---------- */
 function shSay(t,sec){ const e=$('shSay'); if(!e) return; e.innerHTML=t+(sec?'<div class="sh-tbar"><i style="animation-duration:'+sec+'s"></i></div>':''); }
@@ -4062,7 +4078,7 @@ function shStopAll(){ if(!sh) return; shAutoStop(); shStopSeg(); clearTimeout(sh
 /* ---------- 시작 · 탭 ---------- */
 function startShadow(view){ ac(); try{ unlockAudio(); }catch(e){}
   if(!sh) sh={i:0,rate:1/SH_BASE,rateLb:1,st:shLoad(),view:'rep',coin0:coins};
-  sh.st=shLoad(); show('shadow'); updateWallet(); shEnsureVideo(); shSetRate(sh.rateLb||1); shView(view||sh.view||'rep'); }
+  sh.st=shLoad(); show('shadow'); updateWallet(); shMicCheck(); shEnsureVideo(); shSetRate(sh.rateLb||1); shView(view||sh.view||'rep'); }
 function shView(v){ if(v==='dict') v='rep'; fitZ=0; shStopAll(); sh.view=v; shSetCap(v==='dub'&&sh.cap!==false); [...document.querySelectorAll('.sh-tab')].forEach(b=>b.classList.toggle('on',b.dataset.v===v));
   ({rep:shRenderRep,dict:shDictStart,nosub:shRenderFull,dub:shRenderDub})[v](); }
 
@@ -4296,7 +4312,7 @@ Object.assign(HOWTO,{
     '한 문장씩|영어는 가려져 있어요. 먼저 <b>귀로만</b> 듣고 따라 말한 뒤, 막히면 <b>👀 영어 보기</b>를 눌러요. 🎙️로 녹음해서 원본과 <b>내 목소리</b>를 비교해 봐요. 문장마다 <b>3번</b>씩!',
     '자막 없이|영상 전체를 자막 없이 보며 <b>그림자처럼</b> 바로 따라 말해요.',
     '스스로 말하기|자막을 보며 <b>전체 더빙</b>에 도전해요. 원본은 작게 들리고, 녹음엔 내 목소리만 남아요. 끝나면 <b>🤖 AI 첨삭</b>으로 발음·연음을 확인해요.'],
-    tip:'마이크를 써도 되는지 물어보면 ‘허용’을 눌러 주세요. 이어폰을 끼면 더 잘 들려요.'}
+    tip:'시작을 누르면 마이크 허용 창이 떠요. <b>‘허용’</b>을 눌러 주세요. 이어폰을 끼면 더 잘 들려요.'}
 });
 Object.assign(GAME_NM,{shadow:'영상 쉐도잉'});
 
@@ -4433,7 +4449,7 @@ $('openStudy').onclick=()=>openStudy('all'); $('sHome').onclick=goHome;
 $('tabAll').onclick=()=>{studyTab='all';renderStudy();}; $('tabWrong').onclick=()=>{studyTab='wrong';renderStudy();};
 $('clearWrong').onclick=()=>{wrong.clear();saveWrong();renderStudy();};
 document.querySelectorAll('.tile').forEach(t=>t.onclick=()=>{ const m=t.dataset.mode; LT_GAME=m;
-  if(m==='quest')startQL('mc'); else if(m==='bingo')howTo('bingo',startBingo); else if(m==='run')startRun(); else if(m==='escape')howTo('escape',startEscape); else if(m==='hang')howTo('hang',startHang); else if(m==='mem')howTo('mem',startMem); else if(m==='shadow')howTo('shadow',()=>startShadow()); else if(m==='wb')howTo('wb',startWorkbook); else if(m==='listen')startQL('listen');
+  if(m==='quest')startQL('mc'); else if(m==='bingo')howTo('bingo',startBingo); else if(m==='run')startRun(); else if(m==='escape')howTo('escape',startEscape); else if(m==='hang')howTo('hang',startHang); else if(m==='mem')howTo('mem',startMem); else if(m==='shadow')howTo('shadow',()=>{ if(!shMicOK) shMicAsk(); startShadow(); }); else if(m==='wb')howTo('wb',startWorkbook); else if(m==='listen')startQL('listen');
   else if(m==='dict')startQL('dict'); else if(m==='apply')howTo('apply',()=>startQL('apply')); else if(m==='situ')startQL('situ'); else if(m==='match')startSwipe(); else if(m==='room')enterRoom();
   else if(m==='time'){ howTo('time',()=>{ LEADERBOARD_URL?openTimeStart():startTime(); }); } });
 $('qlHome').onclick=()=>goHome(); $('mHome').onclick=()=>{clearInterval(mm&&mm.timer);goHome();}; $('tHome').onclick=()=>{clearInterval(ta&&ta.timer);goHome();};
@@ -4517,7 +4533,7 @@ function refreshSoundBtns(){['muteBtn0','muteBtn1','muteBtn2','muteBtn3','muteBt
 ['muteBtn0','muteBtn1','muteBtn2','muteBtn3','muteBtn4','muteBtn5','muteBtn6','muteBtn7','muteBtn8','muteBtn9','muteBtn10','muteBtn11','muteBtn12','muteBtn13','muteBtn14','muteBtn15'].forEach(id=>{const b=$(id);if(b)b.onclick=()=>{muted=!muted;if(muted)stopSpeak();refreshSoundBtns();if(!muted){ac();sfx.coin();}};});
 setInterval(()=>{const s=$('homeSophie');if($('home').classList.contains('active')){s.classList.add('bounce');setTimeout(()=>s.classList.remove('bounce'),500);}},2800);
 updateWallet(); paintNickChip(); paintRunTile(); paintSndChk(); paintMemTile(); paintShadowTile();
-if(new URLSearchParams(location.search).has('admin')) openAdmin(); else if(getNick()&&getCls()) loadHomeRanks(); else openNickGate();
+if(new URLSearchParams(location.search).has('admin')) openAdmin(); else if(getNick()&&getCls()){ loadHomeRanks(); try{ const g=sessionStorage.getItem('lt7_go'); if(g){ sessionStorage.removeItem('lt7_go'); const v=g.split(':')[1]||'rep'; startShadow(v); } }catch(e){} } else openNickGate();
 </script>
 </body>
 </html>
