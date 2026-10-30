@@ -4019,20 +4019,22 @@ function shSegSec(i,rate){ const x=SHADOW[i]; return (x.e-x.s)/(rate||sh.rate); 
 
 /* ---------- 녹음 ---------- */
 const shRec={stream:null,mr:null,chunks:[],url:{},t:null};
-async function shRecStart(){
+function shRecPrep(){ // 반드시 버튼을 누른 그 순간(동기)에 호출: getUserMedia 를 바로 부름
   shRec.err='';
-  if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){ shRec.err='NoMedia'; return false; }
-  if(!window.MediaRecorder){ shRec.err='NoRecorder'; return false; }
-  try{ shRec.stream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true}}); }
-  catch(e){ try{ shRec.stream=await navigator.mediaDevices.getUserMedia({audio:true}); }catch(e2){ shRec.err=(e2&&e2.name)||(e&&e.name)||'Error'; return false; } }
+  if(shRec.stream&&shRec.stream.active) return Promise.resolve(true);
+  if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){ shRec.err='NoMedia'; return Promise.resolve(false); }
+  if(!window.MediaRecorder){ shRec.err='NoRecorder'; return Promise.resolve(false); }
+  return navigator.mediaDevices.getUserMedia({audio:true}).then(s=>{ shRec.stream=s; return true; }).catch(e=>{ shRec.err=(e&&e.name)||'Error'; return false; }); }
+async function shRecStart(prep){
+  const okS=await (prep||shRecPrep()); if(!okS) return false;
   let mr; try{ mr=new MediaRecorder(shRec.stream); }catch(e){ shRecRelease(); shRec.err='NoRecorder'; return false; }
   shRec.chunks=[]; shRec.mr=mr; mr.ondataavailable=e=>{ if(e.data&&e.data.size) shRec.chunks.push(e.data); }; mr.start(); return true; }
-function shRecRelease(){ if(shRec.stream){ shRec.stream.getTracks().forEach(t=>t.stop()); shRec.stream=null; } }
+function shRecRelease(){ if(shRec.mr) return; if(shRec.stream){ shRec.stream.getTracks().forEach(t=>t.stop()); shRec.stream=null; } }
 function shRecStop(key){ clearTimeout(shRec.t); return new Promise(res=>{ const mr=shRec.mr; shRec.mr=null;
   if(!mr||mr.state==='inactive'){ shRecRelease(); res(null); return; }
   mr.onstop=()=>{ const b=new Blob(shRec.chunks,{type:mr.mimeType||'audio/webm'}); if(shRec.url[key]) URL.revokeObjectURL(shRec.url[key]);
     shRec.url[key]=b.size?URL.createObjectURL(b):null; shRecRelease(); res(shRec.url[key]); };
-  try{ mr.stop(); }catch(e){ shRecRelease(); res(null); } }); }
+  try{ mr.stop(); }catch(e){ shRec.mr=null; shRecRelease(); res(null); } }); }
 function shPlayMine(key,onEnd){ const u=shRec.url[key]; if(!u) return false; const a=$('shAud'); shStopSeg(); a.onended=onEnd||null; a.src=u; a.currentTime=0; const p=a.play(); if(p&&p.catch) p.catch(()=>{}); return true; }
 function shMicWhy(){ let inFrame=false; try{ inFrame=window.top!==window.self; }catch(e){ inFrame=true; }
   const ua=navigator.userAgent||'', ios=/iPhone|iPad|iPod/i.test(ua)||(/Macintosh/.test(ua)&&navigator.maxTouchPoints>1), and=/Android/i.test(ua),
@@ -4231,8 +4233,8 @@ function shRenderDub(){ sh.cap=sh.cap!==false; shSetCover(false,true); shSetCap(
   $('shDubWatch').disabled=!shRec.url.full; $('shDubAI').disabled=!sh.dubAsr; sh.capK=null; shCapLive(); }
 async function shDubFull(){ if(sh.dubRun) { shDubEnd(true); return; } shStopSeg(); clearTimeout(sh.mineT); const a=$('shAud'); if(a) a.pause();
   const b=$('shDubGo'), s=$('shDubSay'); $('shAI').innerHTML='';
-  let n=3; b.disabled=true; const cd=()=>{ if(!sh||sh.view!=='dub'){ return; } if(n>0){ s.innerHTML='<b class="sh-cd">'+n+'</b>'; beep(660,0,0.08); n--; sh.cdT=setTimeout(cd,800); } else go(); };
-  const go=async()=>{ const ok=await shRecStart(); if(ok) shAsrStart(); sh.dubRun={ok,rate:sh.rate}; b.disabled=false; b.textContent='⏹ 그만하기';
+  const prep=shRecPrep(); shAsrStart(); let n=3; b.disabled=true; const cd=()=>{ if(!sh||sh.view!=='dub'){ return; } if(n>0){ s.innerHTML='<b class="sh-cd">'+n+'</b>'; beep(660,0,0.08); n--; sh.cdT=setTimeout(cd,800); } else go(); };
+  const go=async()=>{ const ok=await shRecStart(prep); if(!ok) shAsrStop(); sh.dubRun={ok,rate:sh.rate}; b.disabled=false; b.textContent='⏹ 그만하기';
     s.innerHTML=ok?'🔴 녹음 중 · 자막을 보며 대사를 말해요':'🗣️ 자막을 보며 대사를 말해요 <small>(녹음은 안 돼요)</small>';
     const v=shV(); v.muted=false; shVol(0.5); v.playbackRate=sh.rate; try{ v.currentTime=0; }catch(e){} sh.capK=null; const p=v.play(); if(p&&p.catch)p.catch(()=>{}); };
   cd(); }
