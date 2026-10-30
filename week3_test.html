@@ -849,10 +849,11 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
 .sh-top .sh-arw.sm:disabled{opacity:.3;}
 .sh-exl .sh-ex{display:block;}
 .wb-pg .wb-blank{width:6.5em;min-width:6.5em;max-width:100%;}
-#shadow .sh-exl{grid-template-columns:1fr;gap:4px;}
-#shadow .sh-exl .sh-ex{display:flex;align-items:baseline;gap:8px;padding:5px 10px;}
-#shadow .sh-exl .sh-ex b{display:inline;white-space:nowrap;}
-#shadow .sh-exl .sh-ex span{display:inline;}
+#shadow .sh-exl{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;}
+#shadow .sh-exl .sh-ex{display:inline-flex;align-items:baseline;gap:6px;padding:6px 11px;border-radius:12px;}
+#shadow .sh-exl .sh-ex b{display:inline;font-size:15px;}
+#shadow .sh-exl .sh-ex span{display:none;font-size:12.5px;}
+#shadow .sh-exl .sh-ex.now span{display:inline;}
 .wb-pg .wb-ta{min-height:42px;}
 
 .sh-tabs{margin:0 0 6px;}
@@ -4171,7 +4172,7 @@ function shOnEnded(){ if(!sh) return;
 const SH_EXPR=[ // 수업에서 다룬 주요 표현 (자막·목록에서 형광펜)
  {e:'on a daily basis',k:'매일 · 일상적으로',rx:/on an? daily basis/i},
  {e:'over-index on',k:'~에 지나치게 치중하다',rx:/over-index(es|ed|ing)? on/i},
- {e:"just because ~ doesn't make (mean)",k:'~라고 해서 …인 건 아니다',rx:/just because|doesn.t (make|mean)/i},
+ {e:"just because ~ doesn't mean",k:'~라고 해서 …인 건 아니다',rx:/just because|doesn.t (make|mean)/i},
  {e:'be able to',k:'~할 수 있다',rx:/(be|being|been|is|am|are|was|were) able to/i},
  {e:'know your stuff',k:'자기 분야를 잘 알다',rx:/know (my|your|his|her|their|our) stuff/i},
  {e:'come out of your mouth',k:'입에서 술술 나오다',rx:/come out of (my|your|his|her|their) mouth/i}];
@@ -4315,7 +4316,7 @@ function wbRender(){ const st=wb.st, A=st.ans;
   const sec=(k,no,t,sub,body)=>'<div class="wb-sec'+(st.done[k]?' done':'')+'" id="wbS_'+k+'"><div class="wb-h"><span class="wb-no">'+no+'</span><div><div class="wb-t">'+t+'</div><div class="wb-sub">'+sub+'</div></div></div>'+body+
     '<div class="wb-act"><button class="wb-chk" data-k="'+k+'">✓ 채점하기</button><span class="wb-res" id="wbR_'+k+'"></span></div></div>';
   const bank='<div class="wb-bank">'+WB.bank.map(b=>'<button class="wb-chip">'+esc(b)+'</button>').join('')+'</div>';
-  const fill=WB.fill.map((x,i)=>'<div class="wb-q"><span class="wb-n">'+(i+1)+'</span><div class="wb-line">'+esc(x.pre)+' <input class="wb-blank" id="wbF'+i+'" value="'+esc(A['f'+i]||'')+'" autocomplete="off" autocapitalize="off" spellcheck="false"> '+esc(x.post)+(x.ko?'<div class="wb-fko">'+esc(x.ko)+'</div>':'')+'<div class="wb-key" id="wbFk'+i+'"></div></div></div>').join('');
+  const fill=WB.fill.map((x,i)=>'<div class="wb-q"><span class="wb-n">'+(i+1)+'</span><div class="wb-line">'+esc(x.pre)+' <input class="wb-blank" id="wbF'+i+'" value="'+esc(A['f'+i]||'')+'" autocomplete="off" autocapitalize="off" spellcheck="false"> '+esc(x.post)+'<div class="wb-key" id="wbFk'+i+'"></div></div></div>').join('');
   const fix=WB.fix.map((x,i)=>'<div class="wb-q"><span class="wb-n">'+(i+1)+'</span><div class="wb-line"><div class="wb-wrong">'+esc(x.q)+'</div><textarea class="wb-ta" id="wbX'+i+'" rows="1" autocapitalize="off" spellcheck="false">'+esc(A['x'+i]!=null?A['x'+i]:x.q)+'</textarea><div class="wb-key" id="wbXk'+i+'"></div></div></div>').join('');
   const ke=WB.ko2en.map((x,i)=>'<div class="wb-q"><span class="wb-n">'+(i+1)+'</span><div class="wb-line"><div class="wb-ko">'+esc(x.ko)+'</div><textarea class="wb-ta" id="wbK'+i+'" rows="2" placeholder="영어로 써 보세요" autocapitalize="off" spellcheck="false">'+esc(A['k'+i]||'')+'</textarea><div class="wb-key" id="wbKk'+i+'"></div></div></div>').join('');
   const own='<div class="wb-q"><div class="wb-line"><div class="wb-hint">💡 '+esc(WB.hint||WB.bank.join('  /  '))+'</div><textarea class="wb-ta big" id="wbO" rows="5" placeholder="1. ...&#10;2. ...&#10;3. ..." autocapitalize="sentences" spellcheck="false">'+esc(A.o||'')+'</textarea><div class="wb-key" id="wbOk"></div></div></div>';
