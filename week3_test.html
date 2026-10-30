@@ -843,13 +843,9 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
 
 .wrap.fit{padding-bottom:6px;min-height:0;}
 .sh-tabs{margin:0 0 6px;}
-.sh-tab{display:flex;align-items:center;justify-content:center;gap:4px;font-size:15px;padding:7px 2px;}
-.sh-tab span{display:inline;margin:0;font-size:13px;}
 .sh-bar{margin:6px 0;}
 .sh-nav{margin-bottom:6px;}
-.sh-card{padding:11px 13px;margin-bottom:7px;}
 .sh-btns{margin-top:7px;}
-.sh-b{min-height:44px;}
 .sh-auto{padding:7px 10px;}
 .sh-auto small{display:inline;margin-left:4px;}
 .sh-say:empty{display:none;}
@@ -863,7 +859,6 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
 .wb-pg .wb-sec.cur{display:block;}
 .wb-pg .wb-q{padding:6px 0;}
 .wb-pg .wb-line{line-height:1.8;}
-.wb-pg .wb-blank{width:9em;}
 .wb-pg .wb-fko{margin-top:0;}
 .wb-pg .wb-ta{padding:6px 9px;}
 .wb-nav{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
@@ -872,12 +867,9 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
 .wb-nav button:disabled{opacity:.35;}
 .wb-again.sm{margin-top:8px;padding:7px;font-size:13px;}
 .sh-exl{grid-template-columns:1fr 1fr;gap:5px;margin-top:6px;}
-.sh-ex{display:block;padding:5px 8px;border-radius:10px;}
-.sh-ex b{display:block;font-size:13px;line-height:1.3;}
-.sh-ex span{display:block;font-size:11px;line-height:1.3;}
-.sh-card.dense{padding:10px 12px;}
-.sh-card.dense .sh-big{font-size:15.5px;}
-.sh-card.dense .sh-tipline{font-size:12px;margin:2px 0;}
+.sh-ex{display:block;padding:7px 10px;border-radius:12px;}
+.sh-ex b{display:block;font-size:15px;line-height:1.3;}
+.sh-ex span{display:block;font-size:12.5px;line-height:1.35;}
 .sh-card.dense .sh-say{margin-top:6px;min-height:0;font-size:13px;}
 .sh-sheet{position:fixed;inset:0;z-index:310;background:rgba(20,22,70,.72);display:none;align-items:flex-start;justify-content:center;overflow:auto;padding:16px 12px;}
 .sh-sheet.show{display:flex;}
@@ -1996,15 +1988,7 @@ function stopSpeak(){ try{ if(window.speechSynthesis)speechSynthesis.cancel(); }
 function show(id){stopSpeak();document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));$(id).classList.add('active');window.scrollTo(0,0); fitZ=0; fitScreen();}
 /* 홈 말고는 한 화면에 다 보이게: 넘치면 화면 전체를 살짝 줄임 (한 화면 안에서는 줄어들기만 해서 흔들리지 않음) */
 let fitZ=0, fitQ=0;   // 0 = 이 화면에서 아직 안 맞춤
-function fitScreen(){ const w=document.querySelector('.wrap'), s=document.querySelector('.screen.active'); if(!w||!s) return;
-  if(s.id==='home'){ w.classList.remove('fit'); w.style.zoom=''; fitZ=0; return; }
-  w.classList.add('fit'); const H=window.innerHeight*1.02, ok=z=>{ w.style.zoom=Math.abs(z-1)>0.001?String(z):''; return document.documentElement.scrollHeight<=H; };
-  if(fitZ&&ok(fitZ)) return;                     // 한 화면 안에서는 그대로 (흔들림 방지)
-  let lo=0.72, hi=fitZ||1.3;                     // 화면 높이를 가득 채우는 가장 큰 크기 (최대 130%)
-  if(!fitZ&&ok(hi)){ fitZ=hi; return; }
-  if(!ok(lo)){ fitZ=lo; return; }
-  for(let i=0;i<8;i++){ const m=(lo+hi)/2; if(ok(m)) lo=m; else hi=m; }
-  fitZ=Math.floor(lo*1000)/1000; ok(fitZ); }
+function fitScreen(){ const w=document.querySelector('.wrap'), s=document.querySelector('.screen.active'); if(!w||!s) return; w.style.zoom=''; w.classList.toggle('fit',s.id!=='home'); }
 function fitSoon(){ cancelAnimationFrame(fitQ); fitQ=requestAnimationFrame(fitScreen); }
 window.addEventListener('resize',()=>{ fitZ=0; fitSoon(); });
 window.addEventListener('orientationchange',()=>{ fitZ=0; setTimeout(fitSoon,300); });
@@ -4099,7 +4083,7 @@ async function shRepRec(){ shAutoStop(); const b=$('shRecB');
     if(u){ shSay('👂 내 목소리를 들어 보고, ▶ 원본과 비교해 봐요'); shPlayMine('r'+i); } return; }
   if(sh.recBusy) return; shStopSeg(); sh.recI=sh.i; sh.recBusy=true; b.textContent='🎙️ 준비 중…'; const ok=await shRecStart(); sh.recBusy=false;
   if(sh.view!=='rep'||sh.i!==sh.recI){ if(ok) shRecStop('_drop'); return; }
-  if(!ok){ b.textContent='🎙️ 따라 말하기'; shAddRep(sh.i); shNoMic(); return; }
+  if(!ok){ b.textContent='🎙️ 따라 말하기'; shNoMic(); return; }
   b.textContent='⏹ 다 말했어요'; b.classList.add('rec'); const sec=Math.max(3,shSegSec(sh.i)*1.7+1.2);
   shSay('🔴 녹음 중… 영어 문장을 소리 내어 말해요',sec); shRec.t=setTimeout(()=>{ if(shRec.mr) shRepRec(); },sec*1000); }
 function shAutoRun(){ if(sh.auto){ shAutoStop(); return; } sh.auto={n:0}; $('shAuto').classList.add('on'); $('shAuto').innerHTML='⏹ 자동 따라하기 멈추기';
