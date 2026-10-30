@@ -842,6 +842,15 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
 
 
 .wrap.fit{padding-bottom:6px;min-height:0;}
+#shadow .sh-tabs .sh-tab{display:flex;align-items:center;justify-content:center;gap:5px;padding:9px 2px;}
+#shadow .sh-tabs .sh-tab span{display:inline;margin:0;font-size:14px;}
+#shadow .sh-auto small{display:inline;margin-left:6px;}
+.sh-top .sh-arw.sm{width:34px;height:34px;min-width:34px;font-size:14px;border-radius:10px;border:2.5px solid var(--deep);background:#fff;color:var(--deep);cursor:pointer;padding:0;}
+.sh-top .sh-arw.sm:disabled{opacity:.3;}
+.sh-exl .sh-ex{display:block;}
+.wb-pg .wb-blank{width:7.5em;}
+.wb-pg .wb-ta{min-height:42px;}
+
 .sh-tabs{margin:0 0 6px;}
 .sh-bar{margin:6px 0;}
 .sh-nav{margin-bottom:6px;}
@@ -4059,18 +4068,18 @@ function shPaintDots(){ const d=$('shDots'); if(!d) return; d.innerHTML=SHADOW.m
 function shGo(k){ sh.i=Math.max(0,Math.min(SHADOW.length-1,k)); shStopSeg(); if(shRec.mr) shRecStop('_drop'); const a=$('shAud'); if(a) a.pause(); if(sh.view==='rep') shRenderRepCard(); else shRenderDubCard(); }
 function shWireNav(){ $('shPrev').onclick=()=>{ shAutoStop(); shGo(sh.i-1); }; $('shNext').onclick=()=>{ shAutoStop(); shGo(sh.i+1); }; }
 function shRenderRep(){ shSetCover(false);
-  $('shBody').innerHTML=shNavHtml()+
+  $('shBody').innerHTML=
    '<div class="sh-card"><div class="sh-top" id="shTop"></div><div class="sh-en" id="shEn"></div><div class="sh-ko" id="shKo"></div><div class="sh-cnt" id="shCnt"></div></div>'+
    '<div class="sh-btns"><button class="sh-b blue" id="shListen">▶ 듣기</button><button class="sh-b pink" id="shRecB">🎙️ 따라 말하기</button><button class="sh-b" id="shMine" disabled>👂 내 목소리</button></div>'+
    '<button class="sh-auto" id="shAuto">🔁 자동 따라하기 <small>듣기 → 따라 말하기 × 3번 → 다음 문장</small></button>'+
    '<div class="sh-say" id="shSay"></div>';
-  shWireNav(); if(sh.hideEn===undefined) sh.hideEn=true;
+  if(sh.hideEn===undefined) sh.hideEn=true;
   $('shListen').onclick=()=>{ shAutoStop(); shSay('👂 잘 듣고, 입 모양도 봐요'); shPlaySeg(sh.i,{cb:()=>shSay('🗣️ 이제 🎙️ 따라 말하기!')}); };
   $('shRecB').onclick=shRepRec; $('shMine').onclick=()=>{ shAutoStop(); shPlayMine('r'+sh.i); };
   $('shAuto').onclick=shAutoRun; shRenderRepCard(); }
 function shRenderRepCard(){ const x=SHADOW[sh.i]; shPaintDots();
-  $('shTop').innerHTML=shSpk(x)+'<span class="sh-no">'+(sh.i+1)+' / '+SHADOW.length+'</span><span class="grow"></span><button class="sh-sw'+(sh.hideEn?' hl':'')+'" id="shEnTg">'+(sh.hideEn?'👀 영어 보기':'🙈 영어 가리기')+'</button>';
-  $('shEnTg').onclick=()=>{ sh.hideEn=!sh.hideEn; shRenderRepCard(); };
+  $('shTop').innerHTML='<button class="sh-arw sm" id="shPrev"'+(sh.i?'':' disabled')+'>◀</button>'+shSpk(x)+'<span class="sh-no">'+(sh.i+1)+' / '+SHADOW.length+'</span><button class="sh-arw sm" id="shNext"'+(sh.i<SHADOW.length-1?'':' disabled')+'>▶</button><span class="grow"></span><button class="sh-sw'+(sh.hideEn?' hl':'')+'" id="shEnTg">'+(sh.hideEn?'👀 영어 보기':'🙈 영어 가리기')+'</button>';
+  $('shEnTg').onclick=()=>{ sh.hideEn=!sh.hideEn; shRenderRepCard(); }; shWireNav();
   $('shEn').textContent=x.en; $('shEn').classList.toggle('hid',!!sh.hideEn); $('shKo').textContent=x.ko;
   const n=Math.min(SH_REP,sh.st.rep[sh.i]); $('shCnt').innerHTML='따라 말하기 '+'<b class="on">●</b>'.repeat(n)+'<b>●</b>'.repeat(SH_REP-n)+(n>=SH_REP?' <span class="ok">완료 ✓</span>':'');
   $('shMine').disabled=!shRec.url['r'+sh.i]; if(!shRec.mr&&!sh.recBusy){ const b=$('shRecB'); b.textContent='🎙️ 따라 말하기'; b.classList.remove('rec'); } if(!sh.auto) shSay(''); }
@@ -4303,7 +4312,7 @@ function wbRender(){ const st=wb.st, A=st.ans;
     '<div class="wb-act"><button class="wb-chk" data-k="'+k+'">✓ 채점하기</button><span class="wb-res" id="wbR_'+k+'"></span></div></div>';
   const bank='<div class="wb-bank">'+WB.bank.map(b=>'<button class="wb-chip">'+esc(b)+'</button>').join('')+'</div>';
   const fill=WB.fill.map((x,i)=>'<div class="wb-q"><span class="wb-n">'+(i+1)+'</span><div class="wb-line">'+esc(x.pre)+' <input class="wb-blank" id="wbF'+i+'" value="'+esc(A['f'+i]||'')+'" autocomplete="off" autocapitalize="off" spellcheck="false"> '+esc(x.post)+(x.ko?'<div class="wb-fko">'+esc(x.ko)+'</div>':'')+'<div class="wb-key" id="wbFk'+i+'"></div></div></div>').join('');
-  const fix=WB.fix.map((x,i)=>'<div class="wb-q"><span class="wb-n">'+(i+1)+'</span><div class="wb-line"><div class="wb-wrong">'+esc(x.q)+'</div><textarea class="wb-ta" id="wbX'+i+'" rows="2" autocapitalize="off" spellcheck="false">'+esc(A['x'+i]!=null?A['x'+i]:x.q)+'</textarea><div class="wb-key" id="wbXk'+i+'"></div></div></div>').join('');
+  const fix=WB.fix.map((x,i)=>'<div class="wb-q"><span class="wb-n">'+(i+1)+'</span><div class="wb-line"><div class="wb-wrong">'+esc(x.q)+'</div><textarea class="wb-ta" id="wbX'+i+'" rows="1" autocapitalize="off" spellcheck="false">'+esc(A['x'+i]!=null?A['x'+i]:x.q)+'</textarea><div class="wb-key" id="wbXk'+i+'"></div></div></div>').join('');
   const ke=WB.ko2en.map((x,i)=>'<div class="wb-q"><span class="wb-n">'+(i+1)+'</span><div class="wb-line"><div class="wb-ko">'+esc(x.ko)+'</div><textarea class="wb-ta" id="wbK'+i+'" rows="2" placeholder="영어로 써 보세요" autocapitalize="off" spellcheck="false">'+esc(A['k'+i]||'')+'</textarea><div class="wb-key" id="wbKk'+i+'"></div></div></div>').join('');
   const own='<div class="wb-q"><div class="wb-line"><div class="wb-hint">💡 '+esc(WB.hint||WB.bank.join('  /  '))+'</div><textarea class="wb-ta big" id="wbO" rows="5" placeholder="1. ...&#10;2. ...&#10;3. ..." autocapitalize="sentences" spellcheck="false">'+esc(A.o||'')+'</textarea><div class="wb-key" id="wbOk"></div></div></div>';
   $('wbBody').innerHTML='<div class="wb-steps" id="wbSteps">'+[['f','A','빈칸'],['x','B','고치기'],['k','C','영작'],['o','D','나만의 문장']].map(([k,n,t],j)=>'<button data-p="'+j+'" id="wbT_'+k+'"><b>'+n+'</b>'+t+'</button>').join('')+'</div><div class="wb-prog" id="wbProg" style="display:none"></div><div class="wb-pg">'+
