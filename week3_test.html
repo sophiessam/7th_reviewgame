@@ -1993,20 +1993,21 @@ function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor
 function esc(s){return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 function norm(s){return (s||'').toLowerCase().replace(/[.,!?"“”'’]/g,'').replace(/\s+/g,' ').trim();}
 function stopSpeak(){ try{ if(window.speechSynthesis)speechSynthesis.cancel(); }catch(e){} document.querySelectorAll('.playline.playing,.listenbtn.playing').forEach(el=>el.classList.remove('playing')); }
-function show(id){stopSpeak();document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));$(id).classList.add('active');window.scrollTo(0,0); fitZ=1; fitScreen();}
+function show(id){stopSpeak();document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));$(id).classList.add('active');window.scrollTo(0,0); fitZ=0; fitScreen();}
 /* 홈 말고는 한 화면에 다 보이게: 넘치면 화면 전체를 살짝 줄임 (한 화면 안에서는 줄어들기만 해서 흔들리지 않음) */
-let fitZ=1, fitQ=0;
+let fitZ=0, fitQ=0;   // 0 = 이 화면에서 아직 안 맞춤
 function fitScreen(){ const w=document.querySelector('.wrap'), s=document.querySelector('.screen.active'); if(!w||!s) return;
-  if(s.id==='home'){ w.classList.remove('fit'); w.style.zoom=''; fitZ=1; return; }
-  w.classList.add('fit'); const H=window.innerHeight, ok=z=>{ w.style.zoom=z<0.999?String(z):''; return document.documentElement.scrollHeight<=H+1; };
-  if(ok(fitZ)){ return; }            // 지금 크기로 들어가면 그대로
-  let lo=0.72, hi=fitZ;               // 넘치면 들어가는 가장 큰 크기를 찾음 (줄어들기만)
+  if(s.id==='home'){ w.classList.remove('fit'); w.style.zoom=''; fitZ=0; return; }
+  w.classList.add('fit'); const H=window.innerHeight*1.02, ok=z=>{ w.style.zoom=Math.abs(z-1)>0.001?String(z):''; return document.documentElement.scrollHeight<=H; };
+  if(fitZ&&ok(fitZ)) return;                     // 한 화면 안에서는 그대로 (흔들림 방지)
+  let lo=0.72, hi=fitZ||1.3;                     // 화면 높이를 가득 채우는 가장 큰 크기 (최대 130%)
+  if(!fitZ&&ok(hi)){ fitZ=hi; return; }
   if(!ok(lo)){ fitZ=lo; return; }
-  for(let i=0;i<7;i++){ const m=(lo+hi)/2; if(ok(m)) lo=m; else hi=m; }
+  for(let i=0;i<8;i++){ const m=(lo+hi)/2; if(ok(m)) lo=m; else hi=m; }
   fitZ=Math.floor(lo*1000)/1000; ok(fitZ); }
 function fitSoon(){ cancelAnimationFrame(fitQ); fitQ=requestAnimationFrame(fitScreen); }
-window.addEventListener('resize',()=>{ fitZ=1; fitSoon(); });
-window.addEventListener('orientationchange',()=>{ fitZ=1; setTimeout(fitSoon,300); });
+window.addEventListener('resize',()=>{ fitZ=0; fitSoon(); });
+window.addEventListener('orientationchange',()=>{ fitZ=0; setTimeout(fitSoon,300); });
 try{ new MutationObserver(fitSoon).observe(document.querySelector('.wrap')||document.body,{childList:true,subtree:true}); }catch(e){}
 
 /* ============ Sophie ============ */
@@ -4019,9 +4020,12 @@ function shSegSec(i,rate){ const x=SHADOW[i]; return (x.e-x.s)/(rate||sh.rate); 
 /* ---------- 녹음 ---------- */
 const shRec={stream:null,mr:null,chunks:[],url:{},t:null};
 async function shRecStart(){
-  if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia||!window.MediaRecorder) return false;
-  try{ shRec.stream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true}}); }catch(e){ return false; }
-  let mr; try{ mr=new MediaRecorder(shRec.stream); }catch(e){ shRecRelease(); return false; }
+  shRec.err='';
+  if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){ shRec.err='NoMedia'; return false; }
+  if(!window.MediaRecorder){ shRec.err='NoRecorder'; return false; }
+  try{ shRec.stream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true}}); }
+  catch(e){ try{ shRec.stream=await navigator.mediaDevices.getUserMedia({audio:true}); }catch(e2){ shRec.err=(e2&&e2.name)||(e&&e.name)||'Error'; return false; } }
+  let mr; try{ mr=new MediaRecorder(shRec.stream); }catch(e){ shRecRelease(); shRec.err='NoRecorder'; return false; }
   shRec.chunks=[]; shRec.mr=mr; mr.ondataavailable=e=>{ if(e.data&&e.data.size) shRec.chunks.push(e.data); }; mr.start(); return true; }
 function shRecRelease(){ if(shRec.stream){ shRec.stream.getTracks().forEach(t=>t.stop()); shRec.stream=null; } }
 function shRecStop(key){ clearTimeout(shRec.t); return new Promise(res=>{ const mr=shRec.mr; shRec.mr=null;
@@ -4031,8 +4035,18 @@ function shRecStop(key){ clearTimeout(shRec.t); return new Promise(res=>{ const 
   try{ mr.stop(); }catch(e){ shRecRelease(); res(null); } }); }
 function shPlayMine(key,onEnd){ const u=shRec.url[key]; if(!u) return false; const a=$('shAud'); shStopSeg(); a.onended=onEnd||null; a.src=u; a.currentTime=0; const p=a.play(); if(p&&p.catch) p.catch(()=>{}); return true; }
 function shMicWhy(){ let inFrame=false; try{ inFrame=window.top!==window.self; }catch(e){ inFrame=true; }
+  const ua=navigator.userAgent||'', ios=/iPhone|iPad|iPod/i.test(ua)||(/Macintosh/.test(ua)&&navigator.maxTouchPoints>1), and=/Android/i.test(ua),
+    app=/KAKAOTALK/i.test(ua)?'카카오톡':/Instagram/i.test(ua)?'인스타그램':/NAVER\(inapp|NAVER/i.test(ua)?'네이버 앱':/FBAN|FBAV|FB_IAB/i.test(ua)?'페이스북':/Line\//i.test(ua)?'라인':/DaumApps/i.test(ua)?'다음 앱':/band/i.test(ua)?'밴드':'', e=shRec.err||'';
+  const open=ios?'오른쪽 아래 <b>⋯</b> 또는 <b>나침반</b> → <b>Safari로 열기</b>':'오른쪽 위 <b>⋮</b> → <b>다른 브라우저로 열기</b>(크롬)';
   if(inFrame) return '🎙️ 지금 창(미리보기)에서는 <b>마이크가 막혀 있어서</b> 녹음이 안 돼요.<br>크롬·사파리에서 게임 주소를 직접 열면 녹음돼요.';
+  if(app) return '🎙️ <b>'+app+' 안에서 열린 창</b>에서는 녹음이 안 돼요.<br>'+open+' 를 누른 뒤 다시 해 보세요.';
   if(!window.isSecureContext) return '🎙️ 이 주소에서는 마이크를 쓸 수 없어요. https 주소로 열어 주세요.';
+  if(e==='NoMedia') return '🎙️ 이 창에서는 마이크를 쓸 수 없어요 (앱 안의 브라우저일 수 있어요).<br>'+(ios?'<b>Safari</b>':'<b>크롬</b>')+'에서 게임 주소를 직접 열어 주세요.';
+  if(e==='NoRecorder') return '🎙️ 이 브라우저는 녹음을 지원하지 않아요. '+(ios?'아이폰을 최신 iOS로 업데이트하거나 <b>Safari</b>로':'<b>크롬</b> 최신 버전으로')+' 열어 주세요.';
+  if(e==='NotFoundError'||e==='OverconstrainedError') return '🎙️ 마이크를 찾을 수 없어요. 이어폰 마이크를 다시 꽂거나 빼고 다시 눌러 주세요.';
+  if(e==='NotReadableError'||e==='AbortError') return '🎙️ 다른 앱(통화·녹음·카메라)이 마이크를 쓰고 있어요. 그 앱을 끄고 다시 눌러 주세요.';
+  if(ios) return '🎙️ 마이크가 <b>거부</b>되어 있어요.<br>주소창 왼쪽 <b>가가(aA)</b> → <b>웹 사이트 설정</b> → 마이크 <b>허용</b> (또는 아이폰 설정 → 앱 → Safari → 마이크 → 허용) 후 새로고침해 주세요.';
+  if(and) return '🎙️ 마이크가 <b>거부</b>되어 있어요.<br>주소창 왼쪽 아이콘 → <b>권한</b> → 마이크 <b>허용</b> 후 새로고침해 주세요.';
   return '🎙️ 마이크 권한이 꺼져 있어요. 주소창 왼쪽 🔒 → 마이크 <b>허용</b> 후 다시 눌러 주세요.'; }
 function shNoMic(where){ const t=shMicWhy(); if(where==='dub'){ const s=$('shDubSay'); if(s) s.innerHTML=t; } else shSay(t); sh.noMic=t; }
 
@@ -4049,7 +4063,7 @@ function shStopAll(){ if(!sh) return; shAutoStop(); shStopSeg(); clearTimeout(sh
 function startShadow(view){ ac(); try{ unlockAudio(); }catch(e){}
   if(!sh) sh={i:0,rate:1/SH_BASE,rateLb:1,st:shLoad(),view:'rep',coin0:coins};
   sh.st=shLoad(); show('shadow'); updateWallet(); shEnsureVideo(); shSetRate(sh.rateLb||1); shView(view||sh.view||'rep'); }
-function shView(v){ if(v==='dict') v='rep'; fitZ=1; shStopAll(); sh.view=v; shSetCap(v==='dub'&&sh.cap!==false); [...document.querySelectorAll('.sh-tab')].forEach(b=>b.classList.toggle('on',b.dataset.v===v));
+function shView(v){ if(v==='dict') v='rep'; fitZ=0; shStopAll(); sh.view=v; shSetCap(v==='dub'&&sh.cap!==false); [...document.querySelectorAll('.sh-tab')].forEach(b=>b.classList.toggle('on',b.dataset.v===v));
   ({rep:shRenderRep,dict:shDictStart,nosub:shRenderFull,dub:shRenderDub})[v](); }
 
 /* ===== ① 한 문장씩 듣고 따라 말하기 ===== */
@@ -4320,7 +4334,7 @@ function wbRender(){ const st=wb.st, A=st.ans;
   Object.keys(st.done).forEach(k=>wbCheck(k,true)); wbProg();
   document.querySelectorAll('#wbSteps button').forEach(b=>b.onclick=()=>wbPage(+b.dataset.p)); $('wbPrev').onclick=()=>wbPage(wb.pg-1); $('wbNext').onclick=()=>wbPage(wb.pg+1); wbPage(wb.pg||0); }
 function wbPage(j){ const K=['f','x','k','o']; wb.pg=Math.max(0,Math.min(3,j)); K.forEach((k,q)=>{ $('wbS_'+k).classList.toggle('cur',q===wb.pg); const t=$('wbT_'+k); t.classList.toggle('on',q===wb.pg); t.classList.toggle('done',!!(wb.st.done[k])); });
-  $('wbPrev').disabled=wb.pg===0; $('wbNext').textContent=wb.pg===3?'🏁 홈으로':'다음 ▶'; $('wbNext').onclick=wb.pg===3?goHome:()=>wbPage(wb.pg+1); $('wbAgain').style.display=wb.pg===3?'':'none'; fitZ=1; window.scrollTo(0,0); fitSoon(); }
+  $('wbPrev').disabled=wb.pg===0; $('wbNext').textContent=wb.pg===3?'🏁 홈으로':'다음 ▶'; $('wbNext').onclick=wb.pg===3?goHome:()=>wbPage(wb.pg+1); $('wbAgain').style.display=wb.pg===3?'':'none'; fitZ=0; window.scrollTo(0,0); fitSoon(); }
 function wbPut(t,txt){ if(!t) return; t.value=txt; t.classList.remove('ok','no'); t.classList.add('pop'); setTimeout(()=>t.classList.remove('pop'),350); wb.last=t; wbKeep(); sfx.flip&&sfx.flip(); }
 function wbDragChip(c){ // 보기 표현을 끌어다 빈칸에 놓기 (톡 누르면 비어 있는 칸에 들어감)
   c.style.touchAction='none';
