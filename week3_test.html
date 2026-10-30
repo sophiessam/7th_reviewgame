@@ -4020,23 +4020,25 @@ function shSegSec(i,rate){ const x=SHADOW[i]; return (x.e-x.s)/(rate||sh.rate); 
 
 /* ---------- 녹음 ---------- */
 const shRec={stream:null,mr:null,chunks:[],url:{},t:null};
+function shAudUnlock(){ const a=$('shAud'); if(!a||a.dataset.unl) return; a.dataset.unl='1'; try{ a.muted=true; a.src=SIL_MP3; const p=a.play(); if(p&&p.then) p.then(()=>{ a.pause(); a.muted=false; }).catch(()=>{ a.muted=false; }); else a.muted=false; }catch(e){ a.muted=false; } }
 function shRecPrep(){ // 반드시 버튼을 누른 그 순간(동기)에 호출: getUserMedia 를 바로 부름
-  shRec.err='';
+  shRec.err=''; shAudUnlock();
   if(shRec.stream&&shRec.stream.active) return Promise.resolve(true);
   if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){ shRec.err='NoMedia'; return Promise.resolve(false); }
   if(!window.MediaRecorder){ shRec.err='NoRecorder'; return Promise.resolve(false); }
   return navigator.mediaDevices.getUserMedia({audio:true}).then(s=>{ shRec.stream=s; return true; }).catch(e=>{ shRec.err=(e&&e.name)||'Error'; return false; }); }
 async function shRecStart(prep){
   const okS=await (prep||shRecPrep()); if(!okS) return false;
-  let mr; try{ mr=new MediaRecorder(shRec.stream); }catch(e){ shRecRelease(); shRec.err='NoRecorder'; return false; }
-  shMicOK=true; try{ shMicPaint(); }catch(e){} shRec.chunks=[]; shRec.mr=mr; mr.ondataavailable=e=>{ if(e.data&&e.data.size) shRec.chunks.push(e.data); }; mr.start(); return true; }
+  let mr; const mt=['audio/mp4','audio/webm;codecs=opus','audio/webm'].find(t=>{ try{ return MediaRecorder.isTypeSupported&&MediaRecorder.isTypeSupported(t); }catch(e){ return false; } });
+  try{ mr=mt?new MediaRecorder(shRec.stream,{mimeType:mt}):new MediaRecorder(shRec.stream); }catch(e){ try{ mr=new MediaRecorder(shRec.stream); }catch(e2){ shRecRelease(); shRec.err='NoRecorder'; return false; } }
+  shMicOK=true; try{ shMicPaint(); }catch(e){} shRec.chunks=[]; shRec.mr=mr; mr.ondataavailable=e=>{ if(e.data&&e.data.size) shRec.chunks.push(e.data); }; try{ mr.start(250); }catch(e){ mr.start(); } return true; }
 function shRecRelease(){ if(shRec.mr) return; if(shRec.stream){ shRec.stream.getTracks().forEach(t=>t.stop()); shRec.stream=null; } }
 function shRecStop(key){ clearTimeout(shRec.t); return new Promise(res=>{ const mr=shRec.mr; shRec.mr=null;
   if(!mr||mr.state==='inactive'){ shRecRelease(); res(null); return; }
   mr.onstop=()=>{ const b=new Blob(shRec.chunks,{type:mr.mimeType||'audio/webm'}); if(shRec.url[key]) URL.revokeObjectURL(shRec.url[key]);
     shRec.url[key]=b.size?URL.createObjectURL(b):null; shRecRelease(); res(shRec.url[key]); };
   try{ mr.stop(); }catch(e){ shRec.mr=null; shRecRelease(); res(null); } }); }
-function shPlayMine(key,onEnd){ const u=shRec.url[key]; if(!u) return false; const a=$('shAud'); shStopSeg(); a.onended=onEnd||null; a.src=u; a.currentTime=0; const p=a.play(); if(p&&p.catch) p.catch(()=>{}); return true; }
+function shPlayMine(key,onEnd){ const u=shRec.url[key]; if(!u) return false; const a=$('shAud'); shStopSeg(); a.muted=false; a.onended=onEnd||null; a.src=u; try{ a.load(); }catch(e){} const p=a.play(); if(p&&p.catch) p.catch(()=>{ try{ shSay('👂 <b>내 목소리</b> 버튼을 눌러 들어 보세요'); }catch(e){} }); return true; }
 function shMicWhy(){ let inFrame=false; try{ inFrame=window.top!==window.self; }catch(e){ inFrame=true; }
   const ua=navigator.userAgent||'', ios=/iPhone|iPad|iPod/i.test(ua)||(/Macintosh/.test(ua)&&navigator.maxTouchPoints>1), and=/Android/i.test(ua),
     app=/KAKAOTALK/i.test(ua)?'카카오톡':/Instagram/i.test(ua)?'인스타그램':/NAVER\(inapp|NAVER/i.test(ua)?'네이버 앱':/FBAN|FBAV|FB_IAB/i.test(ua)?'페이스북':/Line\//i.test(ua)?'라인':/DaumApps/i.test(ua)?'다음 앱':/band/i.test(ua)?'밴드':'', e=shRec.err||'';
@@ -4220,7 +4222,8 @@ function shVol(g){ const v=shV(); if(!v) return; try{ v.volume=g; }catch(e){}
   if(Math.abs(v.volume-g)>0.01||sh.gain){ try{ if(!sh.gain){ const A=ac(); sh.gain=A.createGain(); A.createMediaElementSource(v).connect(sh.gain); sh.gain.connect(A.destination); }
       if(AC&&AC.resume) AC.resume(); sh.gain.gain.value=g; }catch(e){} } }
 /* 음성 인식 (더빙하는 동안 내가 말한 영어를 글자로) */
-const SH_SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+const SH_MOBILE=/iPhone|iPad|iPod|Android/i.test(navigator.userAgent||'')||(/Macintosh/.test(navigator.userAgent||'')&&navigator.maxTouchPoints>1);
+const SH_SR=null; // 3주차: AI 첨삭 제거 (David 10/31) — 음성 인식은 쓰지 않음
 function shAsrStart(){ sh.asr={txt:[],on:true,err:''}; if(!SH_SR) { sh.asr.err='nosr'; return; }
   const go=()=>{ if(!sh.asr||!sh.asr.on) return; let r; try{ r=new SH_SR(); }catch(e){ sh.asr.err='nosr'; return; }
     r.lang='en-US'; r.continuous=true; r.interimResults=true; r.maxAlternatives=1; sh.asr.r=r; sh.asr.cur='';
@@ -4244,7 +4247,7 @@ function shRenderDub(){ sh.cap=sh.cap!==false; shSetCover(false,true); shSetCap(
    '<div class="sh-exl">'+SH_EXPR.map(x=>'<div class="sh-ex"><b>'+esc(x.e)+'</b><span>'+esc(x.k)+'</span></div>').join('')+'</div></div>';
   $('shDubGo').onclick=shDubFull; $('shDubWatch').onclick=shDubWatch; $('shDubAI').onclick=()=>{ shDubAI(); $('shSheet').classList.add('show'); };
   $('shSheetX').onclick=()=>{ $('shSheet').classList.remove('show'); clearTimeout(sh.mineT); $('shAud').pause(); shStopSeg(); }; $('shSheet').onclick=e=>{ if(e.target.id==='shSheet') $('shSheetX').click(); };
-  $('shDubWatch').disabled=!shRec.url.full; $('shDubAI').disabled=!sh.dubAsr; sh.capK=null; shCapLive(); }
+  $('shDubWatch').disabled=!shRec.url.full; $('shDubAI').disabled=!sh.dubAsr; $('shDubAI').style.display='none'; $('shDubAI').parentNode.style.gridTemplateColumns='1fr 1fr'; sh.capK=null; shCapLive(); }
 async function shDubFull(){ if(sh.dubRun) { shDubEnd(true); return; } shStopSeg(); clearTimeout(sh.mineT); const a=$('shAud'); if(a) a.pause();
   const b=$('shDubGo'), s=$('shDubSay'); $('shAI').innerHTML='';
   const prep=shRecPrep(); shAsrStart(); let n=3; b.disabled=true; const cd=()=>{ if(!sh||sh.view!=='dub'){ return; } if(n>0){ s.innerHTML='<b class="sh-cd">'+n+'</b>'; beep(660,0,0.08); n--; sh.cdT=setTimeout(cd,800); } else go(); };
@@ -4259,7 +4262,7 @@ async function shDubEnd(stopped){ const r=sh.dubRun; sh.dubRun=null; const v=shV
   if(stopped){ if(s) s.innerHTML='중간에 멈췄어요. 다시 도전해 봐요!'; return; }
   sh.dubAsr=asr?{txt:asr.txt.join(' '),err:asr.err,rate:r&&r.rate}:null; if($('shDubAI')) $('shDubAI').disabled=!(r&&r.ok);
   sh.st.dub++; shSave(); shCheer(30,'🎬 전체 더빙 완주!'); shDone('전체 더빙');
-  if(s) s.innerHTML=r&&r.ok?'멋져요! <b>▶ 내 더빙 보기</b>로 확인하고, <b>🤖 AI 첨삭</b>을 받아 보세요':'멋져요! 끝까지 해냈어요.<br>'+shMicWhy(); }
+  if(s) s.innerHTML=r&&r.ok?'멋져요! <b>▶ 내 더빙 보기</b>로 확인해 보세요':'멋져요! 끝까지 해냈어요.<br>'+shMicWhy(); }
 function shDubWatch(){ if(!shRec.url.full) return; const v=shV(), a=$('shAud'); shStopSeg(); clearTimeout(sh.mineT); v.muted=true; v.playbackRate=sh.dubRate||sh.rate;
   try{ v.currentTime=0; }catch(e){} sh.capK=null; a.src=shRec.url.full; a.currentTime=0; a.onended=()=>{ v.pause(); v.muted=false; $('shDubSay').innerHTML=''; };
   const p1=v.play(); if(p1&&p1.catch)p1.catch(()=>{}); const p2=a.play(); if(p2&&p2.catch)p2.catch(()=>{}); $('shDubSay').innerHTML='▶ 내 더빙 재생 중 (영상 소리 끔 · 내 목소리만)'; }
@@ -4311,7 +4314,7 @@ Object.assign(HOWTO,{
   shadow:{ic:'🎬',t:'수업 영상 쉐도잉',b:[
     '한 문장씩|영어는 가려져 있어요. 먼저 <b>귀로만</b> 듣고 따라 말한 뒤, 막히면 <b>👀 영어 보기</b>를 눌러요. 🎙️로 녹음해서 원본과 <b>내 목소리</b>를 비교해 봐요. 문장마다 <b>3번</b>씩!',
     '자막 없이|영상 전체를 자막 없이 보며 <b>그림자처럼</b> 바로 따라 말해요.',
-    '스스로 말하기|자막을 보며 <b>전체 더빙</b>에 도전해요. 원본은 작게 들리고, 녹음엔 내 목소리만 남아요. 끝나면 <b>🤖 AI 첨삭</b>으로 발음·연음을 확인해요.'],
+    '스스로 말하기|자막을 보며 <b>전체 더빙</b>에 도전해요. 원본은 작게 들리고, 녹음엔 내 목소리만 남아요. 끝나면 <b>▶ 내 더빙 보기</b>로 내 목소리를 확인해요.'],
     tip:'시작을 누르면 마이크 허용 창이 떠요. <b>‘허용’</b>을 눌러 주세요. 이어폰을 끼면 더 잘 들려요.'}
 });
 Object.assign(GAME_NM,{shadow:'영상 쉐도잉'});
@@ -4332,7 +4335,7 @@ function wbRender(){ const st=wb.st, A=st.ans;
   const sec=(k,no,t,sub,body)=>'<div class="wb-sec'+(st.done[k]?' done':'')+'" id="wbS_'+k+'"><div class="wb-h"><span class="wb-no">'+no+'</span><div><div class="wb-t">'+t+'</div><div class="wb-sub">'+sub+'</div></div></div>'+body+
     '<div class="wb-act"><button class="wb-chk" data-k="'+k+'">✓ 채점하기</button><span class="wb-res" id="wbR_'+k+'"></span></div></div>';
   const bank='<div class="wb-bank">'+WB.bank.map(b=>'<button class="wb-chip">'+esc(b)+'</button>').join('')+'</div>';
-  const fill=WB.fill.map((x,i)=>'<div class="wb-q"><span class="wb-n">'+(i+1)+'</span><div class="wb-line">'+esc(x.pre)+' <input class="wb-blank" id="wbF'+i+'" value="'+esc(A['f'+i]||'')+'" autocomplete="off" autocapitalize="off" spellcheck="false"> '+esc(x.post)+'<div class="wb-key" id="wbFk'+i+'"></div></div></div>').join('');
+  const fill=WB.fill.map((x,i)=>'<div class="wb-q"><span class="wb-n">'+(i+1)+'</span><div class="wb-line">'+esc(x.pre)+' <input class="wb-blank" id="wbF'+i+'" value="'+esc(A['f'+i]||'')+'" autocomplete="off" autocapitalize="off" spellcheck="false"> '+esc(x.post)+(x.ko?'<div class="wb-fko">'+esc(x.ko)+'</div>':'')+'<div class="wb-key" id="wbFk'+i+'"></div></div></div>').join('');
   const fix=WB.fix.map((x,i)=>'<div class="wb-q"><span class="wb-n">'+(i+1)+'</span><div class="wb-line"><div class="wb-wrong">'+esc(x.q)+'</div><textarea class="wb-ta" id="wbX'+i+'" rows="1" autocapitalize="off" spellcheck="false">'+esc(A['x'+i]!=null?A['x'+i]:x.q)+'</textarea><div class="wb-key" id="wbXk'+i+'"></div></div></div>').join('');
   const ke=WB.ko2en.map((x,i)=>'<div class="wb-q"><span class="wb-n">'+(i+1)+'</span><div class="wb-line"><div class="wb-ko">'+esc(x.ko)+'</div><textarea class="wb-ta" id="wbK'+i+'" rows="2" placeholder="영어로 써 보세요" autocapitalize="off" spellcheck="false">'+esc(A['k'+i]||'')+'</textarea><div class="wb-key" id="wbKk'+i+'"></div></div></div>').join('');
   const own='<div class="wb-q"><div class="wb-line"><div class="wb-hint">💡 '+esc(WB.hint||WB.bank.join('  /  '))+'</div><textarea class="wb-ta big" id="wbO" rows="5" placeholder="1. ...&#10;2. ...&#10;3. ..." autocapitalize="sentences" spellcheck="false">'+esc(A.o||'')+'</textarea><div class="wb-key" id="wbOk"></div></div></div>';
