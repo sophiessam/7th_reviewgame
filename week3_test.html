@@ -4048,7 +4048,7 @@ function shMicWhy(){ let inFrame=false; try{ inFrame=window.top!==window.self; }
   if(ios) return '🎙️ 마이크가 <b>거부</b>되어 있어요.<br>주소창 왼쪽 <b>가가(aA)</b> → <b>웹 사이트 설정</b> → 마이크 <b>허용</b> (또는 아이폰 설정 → 앱 → Safari → 마이크 → 허용) 후 새로고침해 주세요.';
   if(and) return '🎙️ 마이크가 <b>거부</b>되어 있어요.<br>주소창 왼쪽 아이콘 → <b>권한</b> → 마이크 <b>허용</b> 후 새로고침해 주세요.';
   return '🎙️ 마이크 권한이 꺼져 있어요. 주소창 왼쪽 🔒 → 마이크 <b>허용</b> 후 다시 눌러 주세요.'; }
-function shNoMic(where){ const t=shMicWhy(); if(where==='dub'){ const s=$('shDubSay'); if(s) s.innerHTML=t; } else shSay(t); sh.noMic=t; }
+function shNoMic(where){ const t=shMicWhy()+(shRec.err?'<div style="font-size:11px;opacity:.7;margin-top:3px">오류 코드: '+esc(shRec.err)+(window.isSecureContext?'':' · insecure')+'</div>':''); if(where==='dub'){ const s=$('shDubSay'); if(s) s.innerHTML=t; } else shSay(t); sh.noMic=t; }
 
 /* ---------- 공통 UI ---------- */
 function shSay(t,sec){ const e=$('shSay'); if(!e) return; e.innerHTML=t+(sec?'<div class="sh-tbar"><i style="animation-duration:'+sec+'s"></i></div>':''); }
