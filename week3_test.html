@@ -2993,7 +2993,7 @@ const SIL_MP3='data:audio/mpeg;base64,SUQzBAAAAAAAI1RTU0UAAAAPAAADTGF2ZjYwLjE2Lj
 let audioUnlocked=false, silentEl=null;
 function unlockAudio(){
   const c=ac(); try{ if(c && c.state!=='running') c.resume(); }catch(e){}
-  try{ if(navigator.audioSession) navigator.audioSession.type='playback'; }catch(e){}   // iOS 17+: 무음 스위치여도 소리
+  try{ if(navigator.audioSession&&!(window.shRec&&(shRec.stream||shRec.pending))) navigator.audioSession.type='playback'; }catch(e){}   // iOS 17+: 무음 스위치여도 소리 (녹음 중엔 건드리지 않음)
   if(!silentEl && !navigator.audioSession){   // 구형 iOS: 무음 오디오를 틀어 '재생' 모드로 전환
     try{ silentEl=new Audio(SIL_MP3); silentEl.loop=true; silentEl.volume=0.01; silentEl.setAttribute('playsinline','');
          const p=silentEl.play(); if(p&&p.catch) p.catch(()=>{}); }catch(e){} }
@@ -4029,7 +4029,7 @@ function shStopSeg(){ if(!sh) return; cancelAnimationFrame(sh.raf); sh.seg=null;
 function shSegSec(i,rate){ const x=SHADOW[i]; return (x.e-x.s)/(rate||sh.rate); }
 
 /* ---------- 녹음 ---------- */
-const shRec={stream:null,mr:null,chunks:[],url:{},t:null};
+const shRec=window.shRec={stream:null,mr:null,chunks:[],url:{},t:null};
 function shAudUnlock(){ const a=$('shAud'); if(!a||a.dataset.unl) return; a.dataset.unl='1'; try{ a.muted=true; a.src=SIL_MP3; const p=a.play(); if(p&&p.then) p.then(()=>{ a.pause(); a.muted=false; }).catch(()=>{ a.muted=false; }); else a.muted=false; }catch(e){ a.muted=false; } }
 function shRecPrep(){ // 반드시 버튼을 누른 그 순간(동기)에 호출: getUserMedia 를 바로 부름
   shRec.err='';
@@ -4037,6 +4037,7 @@ function shRecPrep(){ // 반드시 버튼을 누른 그 순간(동기)에 호출
   if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){ shRec.err='NoMedia'; return Promise.resolve(false); }
   if(!window.MediaRecorder){ shRec.err='NoRecorder'; return Promise.resolve(false); }
   if(shRec.pending) return shRec.pending; // 동시에 두 번 요청하면 아이폰이 InvalidStateError
+  try{ if(navigator.audioSession) navigator.audioSession.type='play-and-record'; }catch(e){}
   const go=c=>navigator.mediaDevices.getUserMedia(c);
   shRec.pending=go({audio:{echoCancellation:true,noiseSuppression:true}}).catch(e=>{ if(e&&(e.name==='NotAllowedError'||e.name==='SecurityError')) throw e; return go({audio:true}); })
     .then(s=>{ shRec.stream=s; shRec.pending=null; return true; }).catch(e=>{ shRec.err=(e&&e.name)||'Error'; shRec.pending=null; return false; });
@@ -4045,7 +4046,7 @@ async function shRecStart(prep){
   const okS=await (prep||shRecPrep()); if(!okS) return false;
   let mr; try{ mr=new MediaRecorder(shRec.stream); }catch(e){ shRecRelease(); shRec.err='NoRecorder'; return false; } // 2주차와 같은 방식
   shMicOK=true; try{ shMicPaint(); }catch(e){} shRec.chunks=[]; shRec.mr=mr; mr.ondataavailable=e=>{ if(e.data&&e.data.size) shRec.chunks.push(e.data); }; try{ mr.start(); }catch(e){ shRec.err=e&&e.name||'Error'; shRec.mr=null; shRecRelease(); return false; } return true; }
-function shRecRelease(){ if(shRec.mr) return; if(shRec.stream){ shRec.stream.getTracks().forEach(t=>t.stop()); shRec.stream=null; } }
+function shRecRelease(){ if(shRec.mr) return; if(shRec.stream){ shRec.stream.getTracks().forEach(t=>t.stop()); shRec.stream=null; } try{ if(navigator.audioSession&&!shRec.pending) navigator.audioSession.type='playback'; }catch(e){} }
 function shRecStop(key){ clearTimeout(shRec.t); return new Promise(res=>{ const mr=shRec.mr; shRec.mr=null;
   if(!mr||mr.state==='inactive'){ shRecRelease(); res(null); return; }
   mr.onstop=()=>{ const b=new Blob(shRec.chunks,{type:mr.mimeType||'audio/webm'}); if(shRec.url[key]) URL.revokeObjectURL(shRec.url[key]);
