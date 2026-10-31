@@ -1212,7 +1212,7 @@ body::before{background-image:
 .pp-stage{position:relative;margin-top:9px;height:calc(100vh - 275px);min-height:300px;max-height:560px;border-radius:16px;overflow:hidden;touch-action:none;user-select:none;-webkit-user-select:none;
   background:radial-gradient(ellipse at 50% 0,#5a1a34 0,#2a0f22 60%,#170a14 100%);border:3px solid #ffcf5a;box-shadow:0 5px 0 rgba(0,0,0,.35),inset 0 0 30px rgba(0,0,0,.5);}
 .pp-mach{position:absolute;left:0;right:0;top:0;height:26px;background:repeating-linear-gradient(90deg,#c8243b 0 16px,#fff 16px 32px);color:#2a1433;font-family:'Pretendard Variable',Pretendard,-apple-system,'Apple SD Gothic Neo',system-ui,sans-serif;font-weight:800;font-size:11.7px;display:flex;align-items:center;justify-content:center;z-index:3;text-shadow:0 0 3px #fff,0 0 3px #fff;}
-.pp-k{position:absolute;top:0;left:0;z-index:2;max-width:48%;min-width:92px;padding:16px 16px 14px;text-align:center;font-family:'Pretendard Variable',Pretendard,-apple-system,'Apple SD Gothic Neo',system-ui,sans-serif;font-weight:700;font-size:14px;line-height:1.18;color:#5a2a00;will-change:transform;word-break:keep-all;}
+.pp-k{position:absolute;top:0;left:0;z-index:2;max-width:44%;min-width:88px;padding:16px 14px 14px;text-align:center;font-family:'Pretendard Variable',Pretendard,-apple-system,'Apple SD Gothic Neo',system-ui,sans-serif;font-weight:700;font-size:13.5px;line-height:1.18;color:#5a2a00;will-change:transform;word-break:keep-all;}
 .pp-k svg{position:absolute;inset:-6px -8px;width:calc(100% + 16px);height:calc(100% + 12px);overflow:visible;filter:drop-shadow(0 3px 0 rgba(120,60,0,.45));}
 .pp-k span{position:relative;z-index:1;text-shadow:0 0 3px #fffbe8,0 0 3px #fffbe8;}
 .pp-k .o{fill:#e9a628;} .pp-k .f{fill:#fffaf0;} .pp-k .b{fill:#ffd85c;opacity:.75;} .pp-k .hl{fill:#fff;opacity:.9;}
@@ -4971,13 +4971,17 @@ function ppNext(){ if(!pp||pp.over) return; pp.i++; if(pp.i>=pp.list.length){ pp
   $('ppRound').textContent='ROUND '+(pp.i+1)+'/'+pp.list.length; $('ppScore').textContent='🍿 '+pp.score; ppHearts();
   $('ppKo').textContent=a.ko; $('ppEn').innerHTML=esc(a.pre)+' <span class="bl">'+esc(a.ans)+'</span> '+esc(a.post);
   $('ppStage').querySelectorAll('.pp-k').forEach(e=>e.remove()); pp.ks=[];
-  pp.queue=[]; pp.opts=shuffle(a.opt.slice()); ppMsg('🍿 정답 팝콘을 받아요!',1300);
+  pp.queue=[]; pp.opts=shuffle(a.opt.slice()); pp.lane={}; const L=shuffle([0,1,2,3]); pp.opts.forEach((o,i)=>pp.lane[o]=L[i]); pp.prevLane=-9; ppMsg('🍿 정답 팝콘을 받아요!',1300);
   pp.last=performance.now(); cancelAnimationFrame(pp.raf); pp.raf=requestAnimationFrame(ppTick); ppSpawn(); }
 function ppSpawn(){ if(!pp||pp.over||pp.lock) return; const st=$('ppStage'), W=st.clientWidth;
-  if(!pp.queue.length){ const w=shuffle(pp.opts.filter(o=>o!==pp.a.ans)); const pos=Math.random()<.5?1:2; w.splice(w.length-pos+1,0,pp.a.ans); pp.queue=w; }
+  if(!pp.queue.length){ let best=null;
+    for(let t=0;t<30;t++){ const w=shuffle(pp.opts.filter(o=>o!==pp.a.ans)); const pos=Math.random()<.5?1:2; w.splice(w.length-pos+1,0,pp.a.ans);
+      const seq=w.slice().reverse(), ls=[pp.prevLane].concat(seq.map(o=>pp.lane[o])); let sc=0; for(let i=1;i<ls.length;i++) sc+=Math.min(2,Math.abs(ls[i]-ls[i-1]));
+      if(!best||sc>best.sc) best={w,sc}; }
+    pp.queue=best.w; }
   const t=pp.queue.pop(), e=document.createElement('div'); e.className='pp-k'; e.innerHTML=PP_SVG+'<span>'+esc(t)+'</span>'; st.appendChild(e);
-  const w=Math.min(e.offsetWidth,W*0.46); let x, tries=0;
-  do{ x=8+Math.random()*(W-w-16); tries++; }while(tries<8&&pp.ks.some(k=>k.y<90&&Math.abs(k.x-x)<w*0.9));
+  const w=Math.min(e.offsetWidth,W*0.44), ln=pp.lane[t]; const cx=(ln+0.5)/4*W+(Math.random()*16-8);
+  const x=Math.max(6,Math.min(W-w-6,cx-w/2)); pp.prevLane=ln;
   pp.ks.push({e,t,x,w,h:e.offsetHeight,y:-e.offsetHeight-26,ok:t===pp.a.ans}); e.style.transform='translate('+x+'px,'+(-200)+'px)';
   pp.spT=setTimeout(ppSpawn,PP_GAP*1000); }
 function ppTick(now){ if(!pp||pp.over) return; const dt=Math.min(.05,(now-pp.last)/1000); pp.last=now;
